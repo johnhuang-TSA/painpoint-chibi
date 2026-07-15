@@ -30,8 +30,13 @@
   .center{position:absolute;left:7%;right:7%;bottom:8%;text-align:center;line-height:1.45;z-index:6;} /* 原本置中會擋角色，改貼下方 */
   .big{font-weight:800;letter-spacing:.04em;font-size:min(3.8vw,4.4vh);}
   .mid{font-weight:700;letter-spacing:.03em;font-size:min(2.8vw,3.3vh);}
-  .cap{display:inline-block;padding:.2em .8em;border-radius:.5em;background:rgba(8,10,18,.52);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
-    text-shadow:0 .08em .5em rgba(0,0,0,.98),0 0 .22em rgba(0,0,0,.85);}
+  /* 對話框：圓角＋立體＋朝上的尾巴（指向上方的角色），用顏色分說話者 */
+  .cap{display:inline-block;position:relative;padding:.34em 1em;border-radius:1em;background:rgba(10,14,24,.74);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    border:1px solid rgba(255,255,255,.16);box-shadow:0 .5vh 1.8vh rgba(0,0,0,.5);
+    text-shadow:0 .08em .4em rgba(0,0,0,.95);}
+  .cap::after{content:"";position:absolute;left:50%;top:-0.6em;transform:translateX(-50%);border:0.6em solid transparent;border-bottom-color:rgba(10,14,24,.74);border-top:0;}
+  #s1 .cap{background:rgba(22,46,80,.82);} #s1 .cap::after{border-bottom-color:rgba(22,46,80,.82);} /* 同事發問＝藍框 */
+  #s5 .cap{background:rgba(16,48,46,.82);} #s5 .cap::after{border-bottom-color:rgba(16,48,46,.82);} /* AI 希望＝青框 */
   .cur{display:inline-block;width:.08em;height:1em;background:currentColor;margin-left:.06em;vertical-align:-0.12em;animation:blink 1s steps(1) infinite;}
   @keyframes blink{50%{opacity:0;}}
   #clock{position:absolute;right:6%;top:11%;font-family:"Consolas",monospace;z-index:7;
