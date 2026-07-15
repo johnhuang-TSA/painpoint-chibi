@@ -218,7 +218,7 @@
 const $=id=>document.getElementById(id);
 const stage=$('stage');
 
-const DUR=[5,11,10,7,5,7,9,4];
+const DUR=[4,12,10,9,5,5,13,14]; // 重寫稿後重新平衡：痛點縮短、AI 解法與量化效益加長
 const B=[0];DUR.forEach(d=>B.push(B[B.length-1]+d));
 const TOTAL=B[B.length-1];
 const FADE=0.5;
@@ -324,13 +324,13 @@ const LANG={
  zh:{name:'中文',code:'zh-TW',
   narr:[
    '同事順口一問：山苦瓜，下週會不會缺貨？',
-   '問題丟到我們供應鏈，這題的答案，就得湊齊四塊拼圖：倉管，庫存還有多少？生管，原料夠不夠？採購，下一批哪天到？品管，檢驗報告何時出？我手上只有其中一塊，剩下的，得一個個去問同事。',
-   '當然我也可以自己查，但光是翻資料，就得攤開庫存表、預估表、交期表、採購單、驗收紀錄、品檢記錄——六張表一張一張比對，耗掉一整個下午。',
-   '更麻煩的是，ERP 跟 新得利，兩邊數字還對不起來。到底該信哪一個？',
-   '天黑了，忙了一整天。我最放不下的還是——這個答案，真的對嗎？',
-   '而山苦瓜，只是這週要顧的幾百個品項，其中一個而已。',
-   '那如果，有一位真正懂供應鏈的 AI 同事，能即時回答這些問題呢？同事問一句，剩下的，都交給它。',
-   '同樣的問題，同事再問一次。這一次，幾秒就有答案。同事隨問，AI 隨答——我們，省下很多的時間。'],
+   '這一句丟到供應鏈，就散成四塊：倉管的庫存、生管的原料、採購的到貨、品管的檢驗報告。我手上只有一塊，剩下的，得一個個去問。',
+   '想自己查？光是攤開庫存表、預估表、交期表、採購單、驗收紀錄、品檢記錄——六張表一張一張比對，一個下午就沒了。',
+   '更麻煩的是，同一個山苦瓜，ERP 顯示三百零二箱，新得利顯示二百八十四箱，差了十八箱。到底該信哪一個？',
+   '天黑了，忙了一整天，我最放不下的還是——這個答案，真的對嗎？',
+   '而這，只是這週幾百個品項裡的其中一個。',
+   '那如果，有一位真正懂供應鏈的 AI 同事呢？同一句問題，它同時查完四個部門、六張表，還比對了 ERP 跟新得利——幾秒鐘，就把答案湊齊。',
+   '山苦瓜，下週不會缺貨：可用庫存三百二十箱、預估需求二百一十箱、下一批八月十二號到；兩套系統差的十八箱，是待驗收批次。原本要半天、問四個部門、翻六張表，現在幾十秒、問一句，每個答案都附上來源。'],
   q:'山苦瓜，下週會不會缺貨？',ans:'「不會。我幫你看過了。」',slogan:'隨問，隨答。',
   depts:['倉管','生管','採購','品管'],tables:['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'],
   s2:'一個問題，被切成<b style="color:#ff9a6a">四塊</b>。',
@@ -388,10 +388,11 @@ function applyEvid(code){const e=EV[code]||EV.zh; // dori→null→用 zh
   const set=(id,tx)=>{const el=$(id);if(el)el.textContent=tx;};
   set('ask6',(LANG[code]||LANG.zh).q);set('ansHead',e.head);set('esrc',e.src);set('slogan',e.slogan);set('ctatext',e.cta);
   e.rows.forEach((r,k)=>{set('ek'+k,r[0]);set('ev'+k,r[1]);});}
-let lang='dori',L=LANG[lang];
+delete LANG.dori; // chibi 版旁白已重寫新稿，Dori 舊錄音對不上，改用系統中文 TTS
+let lang='zh',L=LANG[lang];
 let NARR=L.narr;
 const N={on:true,active:false,voice:null,pending:null,guard:null,poll:null,cur:null,curClip:null,sup:('speechSynthesis' in window)};
-const VO=[];for(let _i=0;_i<8;_i++){const a=new Audio('audio/s'+(_i+1)+'.mp3');a.preload='auto';VO.push(a);}
+const VO=[];for(let _i=0;_i<8;_i++){const a=new Audio();a.preload='none';VO.push(a);} // Dori 已停用，不預載音檔（保留陣列避免其他引用出錯）
 const NARR_ZH=LANG.zh.narr;
 const _frac=(txt,names)=>names.map(n=>{const idx=txt.indexOf(n);return idx<0?1:idx/txt.length;});
 const VO2FRAC=_frac(NARR_ZH[1],DEPTS);
@@ -484,14 +485,14 @@ function render(){
   // 場景3：表名紙卡依序浮現
   {lblEls.forEach((el,k)=>{el.classList.toggle('on',N.on?!!lblShown[k]:smooth((ls-LBL_AT[k])/0.7)>0.5);});
    $('s3line').parentElement.style.opacity=(N.on?(lblShown.every(Boolean)?1:0):smooth((ls-5.0)/1.0)).toFixed(3);}
-  // 場景A：字幕＋ERP/新得利 實際數字對照卡（唸到「數字對不起來」才浮現）
+  // 場景A：字幕＋ERP/新得利 實際數字對照卡（用場景真實經過時間 segElapsed 驅動，TTS 也準）
   {$('sAline').parentElement.style.opacity=smooth((ls-1.4)/1.0).toFixed(3);
-   const np=$('numpanel');if(np){const p=(N.on&&lang==='dori'&&VO[3]&&VO[3].duration&&!VO[3].paused)?VO[3].currentTime:ls;np.style.opacity=smooth((p-2.4)/0.8).toFixed(3);}}
-  // 場景6：有憑據的答案卡→標語→CTA，依 Dori 音檔進度推進（末幕 ls 只到~4s，改用音檔時間才能鋪滿整段）
-  {const p=(N.on&&lang==='dori'&&VO[7]&&VO[7].duration&&!VO[7].paused)?VO[7].currentTime:(ls*2.9);
-   $('evid').style.opacity=smooth((p-3)/0.9).toFixed(3);
-   $('slogan').style.opacity=smooth((p-6.5)/0.9).toFixed(3);
-   $('cta').style.opacity=smooth((p-8.5)/0.9).toFixed(3);}
+   const np=$('numpanel');if(np)np.style.opacity=smooth((segElapsed-2.4)/0.8).toFixed(3);}
+  // 場景6：有憑據的答案卡→標語→CTA，依 segElapsed 推進（不受末幕 ls 上限限制，鋪滿整段並定格保留）
+  {const p=segElapsed;
+   $('evid').style.opacity=smooth((p-2.6)/0.9).toFixed(3);
+   $('slogan').style.opacity=smooth((p-5.6)/0.9).toFixed(3);
+   $('cta').style.opacity=smooth((p-8)/0.9).toFixed(3);}
 
   if(tlPhasesEl){const ch=tlPhasesEl.children;const af=N.on?clamp(segElapsed/estDur(i),0,1):clamp((t-B[i])/DUR[i],0,1);for(let j=0;j<ch.length;j++){ch[j].classList.toggle('active',j===i);ch[j].classList.toggle('done',j<i);ch[j].querySelector('.pb i').style.width=(j<i?100:(j===i?af*100:0))+'%';}
     if(bp2)bp2.textContent=(playing&&t<TOTAL)?'⏸ 暫停':'▶ 播放';}
