@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最簡單的問題，最難的答案｜Q 版公仔真人化</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#000;
+    font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+    color:#fff8ea;-webkit-font-smoothing:antialiased;}
+  #stage{position:fixed;overflow:hidden;background:#0a0a10;--vw:9.6px;}
+  #darkness{position:absolute;inset:0;background:#05060c;opacity:0;will-change:opacity;pointer-events:none;z-index:8;}
+
+  .scene{position:absolute;inset:0;opacity:0;will-change:opacity;overflow:hidden;}
+  .vfallback{position:absolute;inset:0;}
+  .vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform;}
+  /* 各幕退回底色（影片沒載入時的 fallback 心情色） */
+  #s1 .vfallback{background:linear-gradient(180deg,#3a5f8a,#9fc4e8 60%,#cfe0d0);}
+  #s2 .vfallback{background:linear-gradient(180deg,#3f4a74,#8a5f7e 55%,#e0a060);}
+  #s3 .vfallback{background:linear-gradient(180deg,#2e3a5c,#57628c 60%,#4a4a46);}
+  #sA .vfallback{background:radial-gradient(120% 95% at 50% 40%,#241d14,#100b06);}
+  #s4 .vfallback{background:linear-gradient(180deg,#070b1e,#131c38 68%,#0a0f1e);}
+  #sB .vfallback{background:radial-gradient(115% 85% at 50% 20%,#2a1f16,#0c0810);}
+  #s5 .vfallback{background:linear-gradient(180deg,#f6c88b,#fcecc0 55%,#6f9a54);}
+  #s6 .vfallback{background:linear-gradient(180deg,#9cd0e8,#f4f0d2 58%,#84ab60);}
+
+  .overlay{position:absolute;inset:0;z-index:5;}
+  .lower{position:absolute;left:6%;right:6%;bottom:15%;text-align:center;line-height:1.5;z-index:6;}
+  .center{position:absolute;left:7%;right:7%;top:50%;transform:translateY(-50%);text-align:center;line-height:1.55;z-index:6;}
+  .big{font-weight:800;letter-spacing:.06em;font-size:min(5vw,5.6vh);}
+  .mid{font-weight:700;letter-spacing:.05em;font-size:min(3.3vw,3.9vh);}
+  .cap{display:inline-block;padding:.35em 1em;border-radius:.6em;background:rgba(8,10,18,.62);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+    text-shadow:0 .1em .7em rgba(0,0,0,.9);}
+  .cur{display:inline-block;width:.08em;height:1em;background:currentColor;margin-left:.06em;vertical-align:-0.12em;animation:blink 1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  #clock{position:absolute;right:6%;top:11%;font-family:"Consolas",monospace;z-index:7;
+    font-size:min(3vw,3.4vh);letter-spacing:.1em;color:#eef4ff;opacity:0;text-shadow:0 0 .6em rgba(0,0,20,.95);will-change:opacity;}
+
+  /* 場景2：部門名條（唸到誰誰亮） */
+  #deptStrip{position:absolute;left:0;right:0;top:9%;display:flex;justify-content:center;gap:min(2vw,2.4vh);z-index:6;}
+  .dchip{font-weight:800;font-size:min(2.5vw,3vh);letter-spacing:.1em;padding:.3em .8em;border-radius:.5em;
+    color:#fff;background:rgba(8,10,18,.5);border:2px solid var(--c);opacity:.32;transition:opacity .5s,box-shadow .5s,background .5s;
+    text-shadow:0 .08em .5em rgba(0,0,0,.8);}
+  .dchip.lit{opacity:1;background:var(--c);color:#0a1018;box-shadow:0 0 2.2vh var(--c);}
+
+  /* 場景3：表名紙卡（唸到才浮現） */
+  #tableWrap{position:absolute;inset:0;z-index:6;}
+  .tchip{position:absolute;opacity:0;transition:opacity .5s,transform .5s;transform:translateY(1.4vh) scale(.9);
+    font-weight:800;font-size:min(2.5vw,3vh);letter-spacing:.08em;color:#3a2b12;
+    background:linear-gradient(180deg,#fbf3df,#ecdcb6);padding:.3em .8em;border-radius:.4em;border:1px solid #b99c6a;
+    box-shadow:0 .5vh 1.6vh rgba(0,0,0,.5);}
+  .tchip.on{opacity:1;transform:translateY(0) scale(1);}
+
+  #vignette{position:absolute;inset:0;pointer-events:none;z-index:9;background:radial-gradient(125% 105% at 50% 50%,rgba(0,0,0,0) 58%,rgba(0,0,0,.5) 100%);}
+  .bar-cine{position:absolute;left:0;right:0;height:0;background:#000;z-index:20;pointer-events:none;transition:height .25s cubic-bezier(.7,0,.3,1);}
+  #barTop{top:0;} #barBot{bottom:0;}
+  body.cine #barTop,body.cine #barBot{height:9%;}
+
+  #bottomUI{position:absolute;left:0;right:0;bottom:0;z-index:25;padding:7px 16px 9px;background:linear-gradient(0deg,rgba(8,8,14,.95) 58%,rgba(8,8,14,0));opacity:0;transition:opacity .5s;}
+  #bottomUI.show{opacity:1;}
+  #tlPhases{display:flex;gap:4px;max-width:1000px;margin:0 auto;}
+  .ph{flex:1;cursor:pointer;text-align:center;padding:4px 2px 8px;border-radius:5px;position:relative;transition:background .3s;}
+  .ph:hover{background:rgba(150,190,240,.12);}
+  .ph .dot{width:9px;height:9px;border-radius:50%;background:#2e3a4a;margin:0 auto 3px;border:2px solid #44546a;transition:all .3s;}
+  .ph.done .dot{background:#6a92c0;border-color:#8fb0d4;}
+  .ph.active .dot{background:#dfeeff;border-color:#fff;box-shadow:0 0 10px #9fc0e0;}
+  .ph .pn{font-size:min(1.15vw,1.5vh);color:#8298b2;white-space:nowrap;}
+  .ph.active .pn{color:#eaf4ff;font-weight:700;}
+  .ph .pb{position:absolute;left:8%;right:8%;bottom:1px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
+  .ph .pb i{display:block;height:100%;width:0;background:#9fc0e0;}
+  #tlCtrl{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:6px;flex-wrap:wrap;}
+  #tlCtrl button{background:rgba(14,18,28,.88);border:1px solid rgba(150,180,220,.3);color:#e6eefa;border-radius:5px;padding:5px 12px;font-size:min(1.35vw,1.7vh);cursor:pointer;font-family:inherit;}
+  #tlCtrl button:hover{border-color:#9fc0e0;color:#fff;}
+  #tlCtrl button.on{background:rgba(120,160,210,.2);border-color:#9fc0e0;color:#fff;}
+  #tlCtrl .sep{color:#3a4656;}
+  #tlCtrl select{background:rgba(14,18,28,.9);border:1px solid rgba(150,180,220,.3);color:#e6eefa;border-radius:5px;padding:5px 7px;font-size:min(1.2vw,1.55vh);font-family:inherit;max-width:26vw;cursor:pointer;}
+
+  #start{position:absolute;inset:0;z-index:40;background:linear-gradient(180deg,#2a3f6a,#4a6fa0 55%,#8fb8d8);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2vh;transition:opacity .8s;}
+  #start.hide{opacity:0;pointer-events:none;}
+  #start .kick{letter-spacing:.5em;color:#dfeaff;font-size:min(1.5vw,1.8vh);font-weight:700;}
+  #start h1{font-size:min(4.6vw,5.2vh);font-weight:800;letter-spacing:.06em;color:#fff;text-shadow:0 .1em .6em rgba(0,0,40,.4);}
+  #start .meta{color:#dfeaff;font-size:min(1.6vw,1.9vh);}
+  #playBtn{margin-top:1.5vh;padding:1.3vh 5vw;font-size:min(2.1vw,2.4vh);letter-spacing:.3em;text-indent:.3em;color:#123;cursor:pointer;font-family:inherit;font-weight:800;border:none;border-radius:10px;background:linear-gradient(180deg,#fff,#cfe0f5);box-shadow:0 .8vh 3vh rgba(0,20,60,.35);}
+  #playBtn:hover{filter:brightness(1.06);}
+  #start .keys{margin-top:1.6vh;color:#cdddf2;font-size:min(1.3vw,1.6vh);line-height:1.9;text-align:center;}
+  #start .keys b{color:#fff;font-weight:700;}
+  #start .vrow{margin-top:1.4vh;color:#eaf2ff;font-size:min(1.5vw,1.8vh);display:flex;align-items:center;gap:.6em;font-weight:600;}
+  #start .vrow select{background:rgba(255,255,255,.92);border:1px solid #6a88b0;color:#123;border-radius:5px;padding:.6vh 1vh;font-size:min(1.4vw,1.7vh);font-family:inherit;max-width:46vw;cursor:pointer;}
+
+  #rotate{display:none;}
+  @media (max-width:860px){
+    #tlPhases{display:none;}
+    #tlCtrl{gap:6px;row-gap:8px;padding:0 2vw;} #tlCtrl button{font-size:14px;padding:9px 13px;} #tlCtrl select{font-size:13px;padding:8px;max-width:42vw;}
+    #start h1{font-size:7vw;} #start .meta{font-size:3.5vw;} #start .kick{font-size:3vw;letter-spacing:.3em;}
+    #start .keys{display:none;} #start .vrow{flex-wrap:wrap;justify-content:center;font-size:4vw;gap:.4em;} #start .vrow select{font-size:4vw;padding:10px;max-width:84vw;}
+    #playBtn{font-size:5vw;padding:3.2vw 12vw;}
+    .big{font-size:min(7vw,8.2vh)!important;} .mid{font-size:min(4.8vw,5.6vh)!important;} .dchip,.tchip{font-size:4vw!important;}
+  }
+  @media (max-width:860px) and (orientation:portrait){
+    #rotate{display:flex;position:fixed;inset:0;z-index:60;flex-direction:column;align-items:center;justify-content:center;gap:2.6vh;
+      background:linear-gradient(180deg,#2a3f6a,#8fb8d8);color:#fff;text-align:center;padding:10vw;}
+    #rotate .ic{font-size:17vw;animation:rotanim 2.6s ease-in-out infinite;} #rotate h2{font-size:6vw;font-weight:700;} #rotate p{font-size:4vw;color:#dfeaff;line-height:1.8;}
+  }
+  @keyframes rotanim{0%,35%{transform:rotate(0);}55%,100%{transform:rotate(90deg);}}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div class="scene" id="s1"><div class="vfallback"></div><video class="vid" data-v="1" loop muted playsinline preload="auto"></video>
+    <div class="overlay"><div class="lower big"><span class="cap" id="q1"></span></div></div></div>
+
+  <div class="scene" id="s2"><div class="vfallback"></div><video class="vid" data-v="2" loop muted playsinline preload="auto"></video>
+    <div class="overlay"><div id="deptStrip"></div><div class="lower mid"><span class="cap" id="s2line">一個問題，被切成<b style="color:#ff9a6a">四塊</b>。</span></div></div></div>
+
+  <div class="scene" id="s3"><div class="vfallback"></div><video class="vid" data-v="3" loop muted playsinline preload="auto"></video>
+    <div class="overlay"><div id="tableWrap"></div><div class="lower mid"><span class="cap" id="s3line">六張表，<b style="color:#ff9a6a">怎麼也對不完</b>。</span></div></div></div>
+
+  <div class="scene" id="sA"><div class="vfallback"></div><video class="vid" data-v="4" loop muted playsinline preload="auto"></video>
+    <div class="overlay"><div class="lower mid"><span class="cap" id="sAline">ERP 一個數，新得利另一個數。到底，<b style="color:#ff9a6a">信哪一個</b>？</span></div></div></div>
+
+  <div class="scene" id="s4"><div class="vfallback"></div><video class="vid" data-v="5" loop muted playsinline preload="auto"></video>
+    <div class="overlay"><div class="center"><div class="mid" style="margin-bottom:1.4vh"><span class="cap" id="s4a">忙了一整天。</span></div>
+      <div class="big"><span class="cap" id="s4b">還是不確定——算得<b style="color:#ff9a6a">對不對</b>。<span class="cur"></span></span></div></div></div></div>
+
+  <div class="scene" id="sB"><div class="vfallback"></div><video class="vid" data-v="6" loop muted playsinline preload="auto"></video>
+    <div class="overlay"><div class="lower mid"><span class="cap" id="sBline">而這，只是這週的<b style="color:#ff9a6a">其中一個</b>品項。</span></div></div></div>
+
+  <div class="scene" id="s5"><div class="vfallback"></div><video class="vid" data-v="7" loop muted playsinline preload="auto"></video>
+    <div class="overlay"><div class="center"><div class="big"><span class="cap" id="s5line"><span style="color:#cfe0f5">如果……</span> 有一個<span style="color:#ffcf8a">「懂供應鏈的 AI 同事」</span>？</span></div></div></div></div>
+
+  <div class="scene" id="s6"><div class="vfallback"></div><video class="vid" data-v="8" loop muted playsinline preload="auto"></video>
+    <div class="overlay"><div class="center">
+      <div class="mid" style="margin-bottom:1.6vh"><span class="cap" id="askback"></span></div>
+      <div class="big"><span class="cap" id="ans" style="color:#fff2d8"></span></div>
+      <div class="big" id="sloganWrap" style="opacity:0;margin-top:2vh"><span class="cap" id="slogan" style="letter-spacing:.3em;color:#ffcf8a">隨問，隨答。</span></div>
+    </div></div></div>
+
+  <div id="clock">09:14</div>
+  <div id="darkness"></div>
+  <div id="vignette"></div>
+  <div class="bar-cine" id="barTop"></div>
+  <div class="bar-cine" id="barBot"></div>
+
+  <div id="bottomUI">
+    <div id="tlPhases"></div>
+    <div id="tlCtrl">
+      <button id="btnPrev">⏮ 上一段</button>
+      <button id="btnPlay2">⏸ 暫停</button>
+      <button id="btnNext2">下一段 ⏭</button>
+      <span class="sep">｜</span>
+      <button id="btnSpeed">速度 ×1</button>
+      <span class="sep">｜</span>
+      <button id="btnMute2" class="on">🔊 音樂</button>
+      <select id="styleSel" title="音樂風格"></select>
+      <button id="btnNarr2" class="on">🗣 旁白</button>
+      <select id="langSel" title="旁白語言"></select>
+      <button id="btnReplay2">↻ 重播</button>
+    </div>
+  </div>
+
+  <div id="start">
+    <div class="kick">SUPPLY CHAIN ‧ 開場 ‧ Q 版公仔真人化</div>
+    <h1>最簡單的問題，最難的答案</h1>
+    <div class="meta">含旁白約 1～1.5 分鐘 ‧ 建議全螢幕</div>
+    <button id="playBtn">▶ 開 始</button>
+    <div class="keys"><b>空白鍵</b> 暫停／繼續　　<b>→ / 點擊</b> 下一段　　<b>R</b> 重播　　<b>音樂🔊</b> M　　<b>旁白🗣</b> N</div>
+    <div class="vrow">🌐 旁白語言：<select id="langSel0" title="旁白語言"></select>　🎵 音樂：<select id="styleSel0" title="音樂風格"></select></div>
+  </div>
+</div>
+
+<div id="rotate"><div class="ic">📱</div><h2>請將手機橫放觀看</h2><p>這是 16:9 電影規格的開場影片<br>橫放才能完整、清晰呈現</p></div>
+
+<script>
+'use strict';
+(function(){
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+
+const DUR=[5,11,10,7,5,7,9,4];
+const B=[0];DUR.forEach(d=>B.push(B[B.length-1]+d));
+const TOTAL=B[B.length-1];
+const FADE=0.5;
+let t=0,playing=false,started=false,lastTs=0,VW=9.6;
+
+const clamp=(x,a,b)=>x<a?a:x>b?b:x;
+const smooth=x=>{x=clamp(x,0,1);return x*x*(3-2*x);};
+const easeIO=x=>{x=clamp(x,0,1);return x<0.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;};
+const easeOut=x=>{x=clamp(x,0,1);return 1-Math.pow(1-x,3);};
+function pw(times,vals){if(t<=times[0])return vals[0];for(let i=1;i<times.length;i++){if(t<=times[i]){const p=(t-times[i-1])/(times[i]-times[i-1]);return vals[i-1]+(vals[i]-vals[i-1])*smooth(p);}}return vals[vals.length-1];}
+
+let _lw=0,_lh=0;
+function layout(){const W=innerWidth,H=innerHeight;if(W<2||H<2)return;let w=W,h=W*9/16;if(h>H){h=H;w=H*16/9;}stage.style.width=w+'px';stage.style.height=h+'px';stage.style.left=(W-w)/2+'px';stage.style.top=(H-h)/2+'px';VW=w/100;stage.style.setProperty('--vw',VW+'px');}
+function checkLayout(){if(innerWidth!==_lw||innerHeight!==_lh){_lw=innerWidth;_lh=innerHeight;layout();}}
+addEventListener('resize',layout);addEventListener('load',layout);
+
+// ---------- 影片：每幕一段，載入失敗(缺 v5~v8)則自動退回底色背景 ----------
+const VIDS=[...document.querySelectorAll('.vid')]; // index 0..7 對應 v1..v8、對應場景 0..7
+VIDS.forEach((v,i)=>{const n=v.getAttribute('data-v');v.addEventListener('error',()=>{v.dataset.bad='1';v.style.display='none';});
+  v.src='videos/v'+n+'.mp4';});
+function playVid(i){VIDS.forEach((v,k)=>{if(k===i){if(!v.dataset.bad){try{v.currentTime=0;const p=v.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}}}else{try{v.pause();}catch(e){}}});}
+function pauseAllVids(){VIDS.forEach(v=>{try{v.pause();}catch(e){}});}
+function resumeVid(i){const v=VIDS[i];if(v&&!v.dataset.bad){const p=v.play();if(p&&p.catch)p.catch(()=>{});}}
+
+// ---------- 場景2：部門名條 ----------
+const DEPTS=['倉管','生管','採購','品管'];
+const VILC=['#4aa8ff','#4ade7a','#ffb05c','#c070ff'];
+(function(){const w=$('deptStrip');DEPTS.forEach((d,i)=>{const c=document.createElement('div');c.className='dchip';c.style.setProperty('--c',VILC[i]);c.textContent=d;w.appendChild(c);});})();
+const deptEls=[...document.querySelectorAll('.dchip')];
+let qTarget=-1;
+
+// ---------- 場景3：表名紙卡 ----------
+const LBL=['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'];
+const LBL_AT=[0.7,1.5,2.3,3.1,3.9,4.7];
+const lblShown=[0,0,0,0,0,0];
+const TPOS=[[10,20],[34,13],[60,19],[16,52],[44,44],[70,52]]; // [left%,top%]
+const lblEls=[];LBL.forEach((txt,k)=>{const d=document.createElement('div');d.className='tchip';d.textContent=txt;d.style.left=TPOS[k][0]+'%';d.style.top=TPOS[k][1]+'%';$('tableWrap').appendChild(d);lblEls.push(d);});
+
+function typeInto(el,text,startLs,cps,ls,showCursor){
+  const n=Math.floor(clamp((ls-startLs)*cps,0,text.length));
+  el.innerHTML=text.slice(0,n).replace(/\n/g,'<br>')+(showCursor?'<span class="cur"></span>':'');
+  return n>=text.length;
+}
+
+// ===== 音樂（Web Audio）— 預設電影弦樂 =====
+const M={ctx:null,master:null,mlp:null,lim:null,bus:null,padOsc:[],padGain:null,padFilt:null,revWet:null,muted:false,vol:0.42,sched:0,beat:0};
+const STYLES={
+ cinematic:{name:'🎬 電影弦樂',padMul:1,cutMul:1,pianoMul:1,pulseMul:1,rev:0.55,arp:0,bell:0},
+ piano:{name:'🎹 溫暖鋼琴',padMul:0.55,cutMul:1.5,pianoMul:2.0,pulseMul:0.3,rev:0.62,arp:0,bell:0},
+ ambient:{name:'🌌 空靈氛圍',padMul:1.4,cutMul:0.85,pianoMul:0.7,pulseMul:0.1,rev:1.0,arp:0,bell:1},
+ tech:{name:'⚡ 輕快科技',padMul:0.7,cutMul:1.7,pianoMul:0.5,pulseMul:0.75,rev:0.32,arp:1,bell:0}
+};
+let styleKey='cinematic';const ST=()=>STYLES[styleKey];
+function applyStyle(k){if(!STYLES[k])return;styleKey=k;const a=$('styleSel'),b=$('styleSel0');if(a)a.value=k;if(b)b.value=k;if(M.revWet)M.revWet.gain.value=ST().rev;if(M.ctx)musicScene(sceneAt(t));}
+function buildStyleSel(){['styleSel','styleSel0'].forEach(id=>{const sel=$(id);if(!sel)return;sel.innerHTML='';Object.keys(STYLES).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=STYLES[k].name;sel.appendChild(o);});sel.value=styleKey;});}
+buildStyleSel();
+function _impulse(c,dur,decay){const len=Math.floor(c.sampleRate*dur);const b=c.createBuffer(2,len,c.sampleRate);for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay);}return b;}
+function initAudio(){if(M.ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const c=M.ctx=new AC();
+  M.master=c.createGain();M.master.gain.value=M.vol;
+  M.mlp=c.createBiquadFilter();M.mlp.type='lowpass';M.mlp.frequency.value=5200;M.master.connect(M.mlp);
+  M.lim=c.createDynamicsCompressor();M.lim.threshold.value=-3;M.lim.knee.value=0;M.lim.ratio.value=20;M.lim.attack.value=0.003;M.lim.release.value=0.25;M.mlp.connect(M.lim);M.lim.connect(c.destination);
+  M.bus=c.createGain();M.bus.connect(M.master);
+  try{const conv=c.createConvolver();conv.buffer=_impulse(c,2.6,2.4);const w=c.createGain();w.gain.value=ST().rev;M.revWet=w;M.bus.connect(conv);conv.connect(w);w.connect(M.master);}
+  catch(e){const dly=c.createDelay(1);dly.delayTime.value=0.35;const fb=c.createGain();fb.gain.value=0.32;const w=c.createGain();w.gain.value=ST().rev*0.55;M.revWet=w;M.bus.connect(dly);dly.connect(fb);fb.connect(dly);dly.connect(w);w.connect(M.master);}
+  M.padFilt=c.createBiquadFilter();M.padFilt.type='lowpass';M.padFilt.frequency.value=1100;M.padFilt.Q.value=0.5;
+  M.padGain=c.createGain();M.padGain.gain.value=0;M.padFilt.connect(M.padGain);M.padGain.connect(M.bus);
+  [146.83,174.61,220,293.66].forEach((f,k)=>{const o=c.createOscillator();o.type=k%2?'triangle':'sine';o.frequency.value=f;const g=c.createGain();g.gain.value=0.2;o.connect(g);g.connect(M.padFilt);o.start();const o2=c.createOscillator();o2.type='sine';o2.frequency.value=f*1.004;const g2=c.createGain();g2.gain.value=0.11;o2.connect(g2);g2.connect(M.padFilt);o2.start();o._d=o2;M.padOsc.push(o);});
+  M.sched=c.currentTime+0.1;}
+function thump(t0,v){const c=M.ctx;const o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(120,t0);o.frequency.exponentialRampToValueAtTime(46,t0+0.25);const g=c.createGain();g.gain.setValueAtTime(v,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+0.42);o.connect(g);g.connect(M.master);o.start(t0);o.stop(t0+0.46);}
+function padChord(fr){if(!M.ctx)return;const now=M.ctx.currentTime;M.padOsc.forEach((o,k)=>{if(fr[k]!=null){o.frequency.setTargetAtTime(fr[k],now,0.5);if(o._d)o._d.frequency.setTargetAtTime(fr[k]*1.004,now,0.5);}});}
+function piano(t0,f,v,dur){const c=M.ctx;dur=dur||2.6;const g=c.createGain();g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+0.02);g.gain.exponentialRampToValueAtTime(0.0008,t0+dur);const o=c.createOscillator();o.type='sine';o.frequency.value=f;const o2=c.createOscillator();o2.type='sine';o2.frequency.value=f*2.001;const g2=c.createGain();g2.gain.value=0.16;o.connect(g);o2.connect(g2);g2.connect(g);g.connect(M.bus);o.start(t0);o2.start(t0);o.stop(t0+dur+0.1);o2.stop(t0+dur+0.1);}
+function pianoChord(t0,fr,v){fr.forEach((f,k)=>piano(t0+k*0.09,f,v*0.7,3.4));}
+function subPulse(t0,v){const c=M.ctx;const o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(76,t0);o.frequency.exponentialRampToValueAtTime(44,t0+0.18);const g=c.createGain();g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+0.02);g.gain.exponentialRampToValueAtTime(0.001,t0+0.5);o.connect(g);g.connect(M.master);o.start(t0);o.stop(t0+0.55);}
+const CHORDS=[[146.83,174.61,220,293.66],[146.83,174.61,220,261.63],[146.83,174.61,220,311.13],[146.83,174.61,207.65,311.13],[146.83,220,293.66,440],[110,146.83,174.61,220],[116.54,146.83,174.61,233.08],[174.61,220,261.63,349.23]];
+const PADLV=[0.07,0.08,0.12,0.115,0.045,0.1,0.095,0.1];
+const PADCUT=[1100,1300,1600,1400,800,1150,2600,3200];
+function musicScene(i){if(!M.ctx)return;const c=M.ctx,now=c.currentTime,st=ST();padChord(CHORDS[i]||CHORDS[0]);
+  M.padGain.gain.cancelScheduledValues(now);M.padGain.gain.setValueAtTime(M.padGain.gain.value,now);
+  if(i!==2)M.padGain.gain.linearRampToValueAtTime(PADLV[i]*st.padMul,now+1.3);
+  M.padFilt.frequency.setTargetAtTime(PADCUT[i]*st.cutMul,now,0.9);
+  if(i===6)pianoChord(now+0.2,[233.08,293.66,349.23,466.16],0.085*st.pianoMul);
+  if(i===7)pianoChord(now+0.2,[349.23,440,523.25],0.08*st.pianoMul);}
+function musicTick(){if(!M.ctx)return;const c=M.ctx;if(!playing)return;if(c.state==='suspended'){c.resume();return;}const i=sceneAt(t),ls=t-B[i],st=ST();
+  const P=(t0,f,v,d)=>piano(t0,f,v*st.pianoMul,d);const SP=(t0,v)=>{if(st.pulseMul>0.01)subPulse(t0,v*st.pulseMul);};
+  if(i===2&&M.padGain){const rise=Math.min(1,ls/9);const trem=1+0.14*Math.sin(c.currentTime*5.5);M.padGain.gain.value=(0.05+0.1*rise)*trem*st.padMul;M.padFilt.frequency.value=(850+rise*1500)*st.cutMul;}
+  const ARP=[392.0,440,523.25,587.33,659.25];
+  while(M.sched<c.currentTime+0.2){const tt=M.sched;
+    if(i===0){if(M.beat%16===0)P(tt,392.0,0.06,3.2);if(M.beat%16===9)P(tt,329.63,0.045,3);}
+    else if(i===1){if(M.beat%8===0)SP(tt,0.15);if(M.beat%16===6)P(tt,293.66,0.055,2.8);}
+    else if(i===2){const d=2+Math.floor(ls/3);if(M.beat%Math.max(2,7-d)===0)SP(tt,0.14);if(M.beat%14===0)P(tt,311.13,0.05,2.2);}
+    else if(i===3){if(M.beat%4===0)P(tt,(M.beat/4)%2?293.66:311.13,0.06,1.6);if(M.beat%8===0)SP(tt,0.13);}
+    else if(i===4){if(M.beat%26===0)P(tt,349.23,0.06,3.8);}
+    else if(i===5){const d=Math.floor(ls/2);if(M.beat%Math.max(3,8-d)===0)SP(tt,0.2);if(M.beat%16===0)P(tt,174.61,0.06,2.4);}
+    else if(i===6){if(M.beat%6===0)P(tt,[233.08,293.66,349.23,466.16][(M.beat/6)%4|0],0.075,2.8);}
+    else if(i===7){if(M.beat%8===0)P(tt,[349.23,440,523.25][(M.beat/8)%3|0],0.07,3);}
+    if(st.arp&&i!==4&&M.beat%2===0)piano(tt,ARP[(M.beat/2)%ARP.length|0]*(i>=6?1.5:1),0.02,0.5);
+    if(st.bell&&M.beat%24===0)piano(tt,[784,880,1047][(M.beat/24)%3|0],0.028,4.2);
+    M.sched+=60/120/2;M.beat++;}}
+
+// ===== 旁白（多語言 + Dori 真人音檔）=====
+const LANG={
+ zh:{name:'中文',code:'zh-TW',
+  narr:[
+   '同事順口一問：山苦瓜，下週會不會缺貨？',
+   '問題丟到我們供應鏈，這題的答案，就得湊齊四塊拼圖：倉管，庫存還有多少？生管，原料夠不夠？採購，下一批哪天到？品管，檢驗報告何時出？我手上只有其中一塊，剩下的，得一個個去問同事。',
+   '當然我也可以自己查，但光是翻資料，就得攤開庫存表、預估表、交期表、採購單、驗收紀錄、品檢記錄——六張表一張一張比對，耗掉一整個下午。',
+   '更麻煩的是，ERP 跟 新得利，兩邊數字還對不起來。到底該信哪一個？',
+   '天黑了，忙了一整天。我最放不下的還是——這個答案，真的對嗎？',
+   '而山苦瓜，只是這週要顧的幾百個品項，其中一個而已。',
+   '那如果，有一位真正懂供應鏈的 AI 同事，能即時回答這些問題呢？同事問一句，剩下的，都交給它。',
+   '同樣的問題，同事再問一次。這一次，幾秒就有答案。同事隨問，AI 隨答——我們，省下很多的時間。'],
+  q:'山苦瓜，下週會不會缺貨？',ans:'「不會。我幫你看過了。」',slogan:'隨問，隨答。',
+  depts:['倉管','生管','採購','品管'],tables:['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'],
+  s2:'一個問題，被切成<b style="color:#ff9a6a">四塊</b>。',
+  s3:'六張表，<b style="color:#ff9a6a">怎麼也對不完</b>。',
+  sA:'ERP 一個數，新得利另一個數。到底，<b style="color:#ff9a6a">信哪一個</b>？',
+  s4a:'忙了一整天。',s4b:'還是不確定——算得<b style="color:#ff9a6a">對不對</b>。<span class="cur"></span>',
+  sB:'而這，只是這週的<b style="color:#ff9a6a">其中一個</b>品項。',
+  s5:'<span style="color:#cfe0f5">如果……</span> 有一個<span style="color:#ffcf8a">「懂供應鏈的 AI 同事」</span>？'},
+ en:{name:'English',code:'en-US',
+  narr:[
+   "A colleague casually asks: bitter gourd — will we run out next week?",
+   "The question lands on supply chain — and the answer is a four-piece puzzle: Warehouse, how much stock is left? Planning, do we have enough raw material? Purchasing, when does the next batch arrive? QC, when's the inspection report ready? I only hold one of those pieces — the rest, I ask for, colleague by colleague.",
+   "Sure, I could look it up myself — but just digging through the data means opening the stock sheet, the forecast, the lead-time sheet, purchase orders, receiving records, QC logs — six sheets, cross-checked one by one, a whole afternoon gone.",
+   "Worse still, ERP and the second inventory system don't even agree. Which number do I trust?",
+   "Night falls. A whole day's work. And what I still can't shake is — is this answer even right?",
+   "And bitter gourd is just one of the hundreds of items I'm watching this week.",
+   "But what if there were an AI teammate who truly understood supply chain — and could answer these questions instantly? A colleague just asks, and it handles the rest.",
+   "The same question, asked again by a colleague. This time, the answer comes in seconds. They ask, it answers — and we get a lot of time back."],
+  q:'Bitter gourd — will we run out next week?',ans:'“No. I’ve already checked for you.”',slogan:'Ask anytime. Answered instantly.',
+  depts:['Warehouse','Planning','Purchasing','QC'],tables:['Stock','Forecast','Lead-time','PO','Receiving','QC log'],
+  s2:'One question, <b style="color:#ff9a6a">split four ways</b>.',
+  s3:'Six sheets that <b style="color:#ff9a6a">never reconcile</b>.',
+  sA:'ERP says one number, 新得利 another. <b style="color:#ff9a6a">Which do I trust</b>?',
+  s4a:"A whole day's work.",s4b:'Still not sure the numbers <b style="color:#ff9a6a">add up</b>.<span class="cur"></span>',
+  sB:'And this is just <b style="color:#ff9a6a">one item</b> this week.',
+  s5:'<span style="color:#cfe0f5">What if…</span> there were an <span style="color:#ffcf8a">AI that truly knows supply chain</span>?'},
+ ja:{name:'日本語',code:'ja-JP',
+  narr:[
+   '同僚が軽く一言。ゴーヤ、来週は欠品する？',
+   '問題はサプライチェーンに回ってくる。その答えは、四つのピースを揃えないと出ない。倉庫管理、在庫はあといくつ？生産管理、原料は足りる？購買、次のロットはいつ入る？品質管理、検査報告はいつ出る？私が持っているのは、そのうちのひとつだけ。残りは、同僚に一人ずつ聞いて回る。',
+   'もちろん自分で調べてもいい。でも資料をめくるだけでも、在庫表、予測表、納期表、発注書、検収記録、品質検査記録——六枚の表を広げて、一枚ずつ照合して、午後がまるごと消える。',
+   '厄介なのは、ERPと別の在庫システムで数字が合わないこと。どちらを信じればいい？',
+   '日が暮れ、丸一日働いた。それでも引っかかるのは——この答え、本当に正しい？',
+   'そしてゴーヤは、今週見るべき数百の品目のひとつにすぎない。',
+   'もし、サプライチェーンを本当に理解したAIの同僚がいて、こうした質問に即座に答えてくれたら？同僚はひと言聞くだけ、あとは全部任せられる。',
+   '同じ質問を、同僚がもう一度。今度は数秒で答えが出る。彼が聞けば、AIが答える——そして私たちは、多くの時間を取り戻す。'],
+  q:'ゴーヤ、来週は欠品する？',ans:'「いいえ。確認しておきました。」',slogan:'聞けば、すぐ答える。',
+  depts:['倉庫','生産','購買','品質'],tables:['在庫表','予測表','納期表','発注書','検収記録','品質検査'],
+  s2:'ひとつの質問が、<b style="color:#ff9a6a">四つに分かれる</b>。',
+  s3:'六枚の表が、<b style="color:#ff9a6a">どうしても合わない</b>。',
+  sA:'ERPとひとつ、新得利と別の数字。<b style="color:#ff9a6a">どっちを信じる</b>？',
+  s4a:'丸一日働いた。',s4b:'それでも確信が持てない——数字は<b style="color:#ff9a6a">合っているか</b>。<span class="cur"></span>',
+  sB:'これは、今週の<b style="color:#ff9a6a">ひとつの品目</b>にすぎない。',
+  s5:'<span style="color:#cfe0f5">もし……</span> <span style="color:#ffcf8a">「サプライチェーンを理解したAIの同僚」</span>がいたら？'}
+};
+LANG.dori=Object.assign({},LANG.zh,{name:'Dori 真人配音'});
+let lang='dori',L=LANG[lang];
+let NARR=L.narr;
+const N={on:true,active:false,voice:null,pending:null,guard:null,poll:null,cur:null,curClip:null,sup:('speechSynthesis' in window)};
+const VO=[];for(let _i=0;_i<8;_i++){const a=new Audio('audio/s'+(_i+1)+'.mp3');a.preload='auto';VO.push(a);}
+const NARR_ZH=LANG.zh.narr;
+const _frac=(txt,names)=>names.map(n=>{const idx=txt.indexOf(n);return idx<0?1:idx/txt.length;});
+const VO2FRAC=_frac(NARR_ZH[1],DEPTS);
+const VO3FRAC=_frac(NARR_ZH[2],LBL);
+function useVO(i){return N.on&&lang==='dori'&&VO[i]&&!VO[i].error;}
+function playClip(i){const a=VO[i];if(!a){if(N.sup)doSpeak(i);return;}N.curClip=a;N.active=true;duck();
+  try{a.currentTime=0;a.playbackRate=speed;}catch(e){}
+  a._rz=0;
+  clearTimeout(N.guard);N.guard=setTimeout(()=>{if(N.curClip===a){N.active=false;duck();}},40000);
+  a.onended=()=>{if(N.curClip!==a)return;if(a.duration&&a.currentTime<a.duration-0.6&&(a._rz=a._rz+1)<=3){const pp=a.play();if(pp&&pp.catch)pp.catch(()=>{});return;} clearTimeout(N.guard);N.active=false;duck();};
+  a.onerror=()=>{if(N.curClip===a){N.curClip=null;clearTimeout(N.guard);if(N.sup)doSpeak(i);else{N.active=false;duck();}}};
+  const p=a.play();if(p&&p.catch)p.catch(()=>{});}
+function allVoices(){return N.sup?speechSynthesis.getVoices():[];}
+function pickVoice(){if(!N.sup)return;const all=allVoices();const rx=new RegExp('^'+(lang==='dori'?'zh':lang),'i');const full=L.code.toLowerCase().replace('_','-');
+  const vs=all.filter(v=>rx.test(v.lang));
+  const exact=vs.filter(v=>v.lang.toLowerCase().replace('_','-')===full);const pool=exact.length?exact:vs;
+  N.voice=pool.find(v=>/online|natural|neural|曉|雲/i.test(v.name))||pool.find(v=>/google/i.test(v.name))||pool.find(v=>!/hanhan/i.test(v.name))||pool[0]||vs[0]||null;}
+function applyLang(code){if(!LANG[code])return;lang=code;L=LANG[code];NARR=L.narr;
+  const set=(id,html)=>{const el=$(id);if(el)el.innerHTML=html;};
+  set('s2line',L.s2);set('s3line',L.s3);set('sAline',L.sA);set('s4a',L.s4a);set('s4b',L.s4b);set('sBline',L.sB);set('s5line',L.s5);
+  const sl=$('slogan');if(sl)sl.textContent=L.slogan;
+  deptEls.forEach((el,k)=>{if(L.depts[k])el.textContent=L.depts[k];});
+  lblEls.forEach((el,k)=>{if(L.tables[k])el.textContent=L.tables[k];});
+  const a=$('langSel'),b=$('langSel0');if(a)a.value=code;if(b)b.value=code;
+  pickVoice();
+  if(typeof syncSpeedBtn==='function')syncSpeedBtn();
+  if(started)speak(sceneAt(t));}
+function buildLangSel(){['langSel','langSel0'].forEach(id=>{const sel=$(id);if(!sel)return;sel.innerHTML='';Object.keys(LANG).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent='🌐 '+LANG[k].name;sel.appendChild(o);});sel.value=lang;});}
+if(N.sup){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+buildLangSel();
+function duck(){if(!M.master)return;const tgt=M.muted?0:(N.on&&N.active?M.vol*0.22:M.vol);try{M.master.gain.setTargetAtTime(tgt,M.ctx.currentTime,0.12);}catch(e){M.master.gain.value=tgt;}}
+function stopNarr(){clearTimeout(N.pending);clearTimeout(N.guard);clearInterval(N.poll);N.cur=null;
+  if(N.curClip){try{N.curClip.pause();N.curClip.onended=N.curClip.onerror=null;}catch(e){}N.curClip=null;}
+  if(N.sup)speechSynthesis.cancel();N.active=false;duck();}
+function doSpeak(i){const txt=NARR[i];if(!txt)return;
+  const parts=[];(txt.match(/[^。．.！!？?]+[。．.！!？?]?/g)||[txt]).forEach(function(seg){seg=seg.trim();if(!seg)return;if(seg.length<=42){parts.push(seg);}else{(seg.match(/[^、，,；;：—]+[、，,；;：—]*/g)||[seg]).forEach(function(s){s=s.trim();if(s)parts.push(s);});}});
+  const token={};N.cur=token;let idx=0;
+  const next=()=>{if(N.cur!==token)return;clearTimeout(N.guard);if(idx>=parts.length){if(i===2)lblShown.fill(1);if(i===1)qTarget=3;N.active=false;duck();return;}
+    const chunk=parts[idx++];let spk=chunk;if(/^zh/i.test(L.code))spk=spk.replace(/AI/g,'A I');
+    if(i===2)for(let k=0;k<LBL.length;k++){if(chunk.indexOf(LBL[k])>=0||(L.tables[k]&&chunk.toLowerCase().indexOf(L.tables[k].toLowerCase())>=0))lblShown[k]=1;}
+    if(i===1)for(let k=0;k<DEPTS.length;k++){if(chunk.indexOf(DEPTS[k])>=0||(L.depts[k]&&chunk.toLowerCase().indexOf(L.depts[k].toLowerCase())>=0))qTarget=k;}
+    const u=new SpeechSynthesisUtterance(spk);if(N.voice)u.voice=N.voice;u.lang=L.code;u.rate=(i<=3?0.97:1.0);u.pitch=1.0;u.volume=1;
+    u.onend=u.onerror=()=>{if(N.cur===token)next();};
+    N.guard=setTimeout(()=>{if(N.cur===token){N.active=false;duck();}},14000);
+    try{speechSynthesis.speak(u);}catch(e){next();}};
+  next();}
+function speak(i){stopNarr();if(!N.on)return;
+  if(useVO(i)){N.active=true;duck();N.pending=setTimeout(()=>playClip(i),300);return;}
+  if(!N.sup)return;const txt=NARR[i];if(!txt)return;N.active=true;duck();N.pending=setTimeout(()=>doSpeak(i),450);}
+function speakNow(i){if(!N.on)return;stopNarr();
+  if(useVO(i)){N.active=true;duck();playClip(i);return;}
+  if(!N.sup)return;const txt=NARR[i];if(!txt)return;N.active=true;duck();doSpeak(i);}
+
+function sceneAt(tt){for(let i=0;i<DUR.length;i++){if(tt<B[i+1]-1e-6)return i;}return DUR.length-1;}
+let curScene=-1;
+const SCENES=[...document.querySelectorAll('.scene')];
+function onEnter(i){
+  if(i===0){$('clock').textContent='09:14';}
+  if(i===4){$('clock').textContent='21:47';}
+  if(i===2)lblShown.fill(0);
+  if(i===1)qTarget=-1;
+  playVid(i);musicScene(i);speak(i);
+}
+function sceneOpacity(i){const s=B[i],e=B[i+1];
+  let inn=(i===0)?smooth(t/1.0):smooth((t-s)/FADE);
+  let out=(i===DUR.length-1)?1:(1-smooth((t-(e-FADE))/FADE));
+  return clamp(inn*out,0,1);}
+function render(){
+  const i=sceneAt(t);
+  if(i!==curScene){curScene=i;if(started)onEnter(i);}
+  for(let k=0;k<SCENES.length;k++)SCENES[k].style.opacity=sceneOpacity(k).toFixed(3);
+  const ls=t-B[i];
+  if(N.on&&lang==='dori'&&i===1&&VO[1]&&!VO[1].paused){const d=VO[1].duration||0,ct=VO[1].currentTime;
+    if(d)for(let k=DEPTS.length-1;k>=0;k--){if(ct>=VO2FRAC[k]*d){qTarget=k;break;}}}
+  if(N.on&&lang==='dori'&&i===2&&VO[2]&&!VO[2].paused){const d=VO[2].duration||0,ct=VO[2].currentTime;if(d)for(let k=0;k<LBL.length;k++)if(ct>=VO3FRAC[k]*d)lblShown[k]=1;}
+
+  $('darkness').style.opacity=pw(B,[0,0.02,0.06,0.12,0.18,0.12,0.02,0,0]).toFixed(3);
+  $('clock').textContent=(i>=4)?'21:47':'09:14';
+  $('clock').style.opacity=(((i===0)?smooth((ls-0.3)/1):(i===4)?smooth(ls/0.4):0)*sceneOpacity(i)).toFixed(3);
+
+  // 場景1：問句字幕
+  {typeInto($('q1'),L.q,0.5,10,ls,true);}
+  // 場景2：部門名條依序亮
+  {const ti=N.on?qTarget:Math.min(3,Math.floor(ls/2.5));
+   deptEls.forEach((el,k)=>{el.classList.toggle('lit',k<=ti&&ti>=0);});
+   $('s2line').parentElement.style.opacity=smooth((ls-1.0)/1.0).toFixed(3);}
+  // 場景3：表名紙卡依序浮現
+  {lblEls.forEach((el,k)=>{el.classList.toggle('on',N.on?!!lblShown[k]:smooth((ls-LBL_AT[k])/0.7)>0.5);});
+   $('s3line').parentElement.style.opacity=(N.on?(lblShown.every(Boolean)?1:0):smooth((ls-5.0)/1.0)).toFixed(3);}
+  // 場景A
+  {$('sAline').parentElement.style.opacity=smooth((ls-1.4)/1.0).toFixed(3);}
+  // 場景6：回答＋slogan
+  {typeInto($('askback'),L.q,0.0,16,ls,false);
+   typeInto($('ans'),L.ans,0.9,11,ls,true);
+   $('sloganWrap').style.opacity=smooth((ls-2.1)/0.8).toFixed(3);}
+
+  if(tlPhasesEl){const ch=tlPhasesEl.children;const af=N.on?clamp(segElapsed/estDur(i),0,1):clamp((t-B[i])/DUR[i],0,1);for(let j=0;j<ch.length;j++){ch[j].classList.toggle('active',j===i);ch[j].classList.toggle('done',j<i);ch[j].querySelector('.pb i').style.width=(j<i?100:(j===i?af*100:0))+'%';}
+    if(bp2)bp2.textContent=(playing&&t<TOTAL)?'⏸ 暫停':'▶ 播放';}
+}
+
+let segElapsed=0,segActive=-1;
+function estDur(j){if(!N.on)return DUR[j];if(VO[j]&&VO[j].duration)return Math.max(DUR[j],VO[j].duration);const n=(NARR[j]||'').length;return Math.max(DUR[j],n*0.23+1);}
+function loop(now){
+  if(!lastTs)lastTs=now;let dt=(now-lastTs)/1000;lastTs=now;if(dt>0.1)dt=0.1;
+  const rawDt=dt;dt*=speed;
+  checkLayout();
+  if(started&&playing){
+    const ci=sceneAt(t);let nt=t+dt;
+    const hp=B[ci+1]-FADE-0.05;
+    if(N.on&&N.active&&ci<DUR.length-1&&nt>=hp)nt=Math.min(nt,hp);
+    if(N.on&&N.active&&nt>=TOTAL)nt=Math.min(nt,TOTAL-0.01);
+    t=nt;if(t>=TOTAL){t=TOTAL;playing=false;}
+    const cs=sceneAt(t);if(cs!==segActive){segActive=cs;segElapsed=0;}segElapsed+=rawDt;
+  }
+  if(started){render();musicTick();}
+  requestAnimationFrame(loop);
+}
+
+function begin(){started=true;playing=true;t=0;lastTs=0;curScene=0;$('start').classList.add('hide');$('bottomUI').classList.add('show');document.body.classList.add('cine');initAudio();unlockAudio();playVid(0);musicScene(0);speakNow(0);try{const el=document.documentElement;const rf=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;if(rf){const p=rf.call(el);if(p&&p.catch)p.catch(()=>{});}}catch(e){}}
+function unlockAudio(){try{if(M.ctx&&M.ctx.state==='suspended')M.ctx.resume();}catch(e){}}
+function nextScene(){if(!started)return;for(let i=1;i<B.length;i++){if(B[i]>t+0.05){t=B[i];if(t>=TOTAL){t=TOTAL;playing=false;}return;}}t=TOTAL;playing=false;}
+function replay(){if(!started){begin();return;}t=0;playing=true;lastTs=0;curScene=-1;stopNarr();}
+function toggle(){if(!started)return;if(t>=TOTAL){replay();return;}playing=!playing;
+  if(!playing){
+    if(N.curClip&&!N.curClip.paused){clearTimeout(N.pending);clearTimeout(N.guard);N.curClip.pause();}
+    else stopNarr();
+    pauseAllVids();
+    try{if(M.ctx)M.ctx.suspend();}catch(e){}}
+  else{
+    try{if(M.ctx)M.ctx.resume();}catch(e){}
+    resumeVid(sceneAt(t));
+    if(N.curClip&&N.curClip.paused&&!N.curClip.ended){N.active=true;duck();const p=N.curClip.play();if(p&&p.catch)p.catch(()=>{});}
+    else if(N.on)speak(sceneAt(t));}}
+$('playBtn').addEventListener('click',e=>{e.stopPropagation();begin();});
+stage.addEventListener('click',e=>{if(!started)return;if(e.target.id==='playBtn')return;if(e.target.closest&&e.target.closest('#bottomUI'))return;nextScene();});
+['click','mousedown'].forEach(ev=>$('bottomUI').addEventListener(ev,e=>e.stopPropagation()));
+addEventListener('keydown',e=>{
+  const tn=e.target&&e.target.tagName;if(tn==='SELECT'||tn==='INPUT'||tn==='TEXTAREA')return;
+  if(e.code==='Space'){e.preventDefault();started?toggle():begin();}
+  else if(e.code==='ArrowRight'){e.preventDefault();nextScene();}
+  else if(e.key==='r'||e.key==='R'){e.preventDefault();replay();}
+  else if(e.key==='m'||e.key==='M'){$('btnMute2').click();}
+  else if(e.key==='n'||e.key==='N'){$('btnNarr2').click();}
+});
+const PHN=['一句話的問題','被切成四塊','被表淹沒','數字打架','深夜不確定','不只一個品項','一抹希望','隨問隨答'];
+const tlPhasesEl=$('tlPhases');
+const bp2=$('btnPlay2');
+let speed=1;const SPEEDS=[1,1.25,1.5,2,0.5];let si=0;
+PHN.forEach((nm,i)=>{const d=document.createElement('div');d.className='ph';d.innerHTML='<div class="dot"></div><div class="pn">'+(i+1)+'. '+nm+'</div><div class="pb"><i></i></div>';d.addEventListener('click',e=>{e.stopPropagation();jumpTo(i);});tlPhasesEl.appendChild(d);});
+function jumpTo(i){const wp=started?playing:true;if(!started){begin();}i=clamp(i,0,DUR.length-1);t=B[i];curScene=-1;playing=wp;lastTs=0;stopNarr();render();}
+$('btnPrev').addEventListener('click',e=>{e.stopPropagation();jumpTo(sceneAt(t)-1);});
+$('btnNext2').addEventListener('click',e=>{e.stopPropagation();jumpTo(sceneAt(t)+1);});
+bp2.addEventListener('click',e=>{e.stopPropagation();started?toggle():begin();});
+$('btnReplay2').addEventListener('click',e=>{e.stopPropagation();replay();});
+$('btnSpeed').addEventListener('click',e=>{e.stopPropagation();if(N.on&&lang!=='dori')return;si=(si+1)%SPEEDS.length;speed=SPEEDS[si];VO.forEach(a=>{try{a.playbackRate=speed;}catch(_){}});VIDS.forEach(v=>{try{v.playbackRate=speed;}catch(_){}});$('btnSpeed').textContent='速度 ×'+speed;});
+function syncSpeedBtn(){const bs=$('btnSpeed');if(!bs)return;const dis=N.on&&lang!=='dori';bs.disabled=dis;bs.style.opacity=dis?'0.45':'';bs.title=dis?'系統 TTS 語音無法變速；改用「Dori 真人配音」即可調速':'';if(dis){si=0;speed=1;bs.textContent='速度 ×1';}}
+syncSpeedBtn();
+$('btnMute2').addEventListener('click',e=>{e.stopPropagation();if(!M.ctx)initAudio();M.muted=!M.muted;duck();$('btnMute2').textContent=M.muted?'🔇 靜音':'🔊 音樂';$('btnMute2').classList.toggle('on',!M.muted);});
+$('btnNarr2').addEventListener('click',e=>{e.stopPropagation();N.on=!N.on;if(!N.on)stopNarr();else if(started)speak(sceneAt(t));$('btnNarr2').textContent=N.on?'🗣 旁白':'🤐 旁白關';$('btnNarr2').classList.toggle('on',N.on);syncSpeedBtn();});
+['langSel','langSel0'].forEach(id=>{const el=$(id);if(el)el.addEventListener('change',e=>{e.stopPropagation();applyLang(e.target.value);});});
+['styleSel','styleSel0'].forEach(id=>{const el=$(id);if(el)el.addEventListener('change',e=>{e.stopPropagation();if(!M.ctx)initAudio();applyStyle(e.target.value);});});
+
+window.__seek=x=>{started=true;playing=false;$('start').classList.add('hide');document.body.classList.add('cine');t=clamp(x,0,TOTAL);curScene=-1;const i=sceneAt(t);curScene=i;playVid(i);render();};
+window.__t=()=>t;
+checkLayout();render();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
