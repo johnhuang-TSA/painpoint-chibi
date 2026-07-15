@@ -30,7 +30,7 @@
   .center{position:absolute;left:7%;right:7%;bottom:8%;text-align:center;line-height:1.45;z-index:6;} /* 原本置中會擋角色，改貼下方 */
   .big{font-weight:800;letter-spacing:.04em;font-size:min(3.8vw,4.4vh);}
   .mid{font-weight:700;letter-spacing:.03em;font-size:min(2.8vw,3.3vh);}
-  .cap{display:inline-block;padding:.2em .8em;border-radius:.5em;background:rgba(8,10,18,.4);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  .cap{display:inline-block;padding:.2em .8em;border-radius:.5em;background:rgba(8,10,18,.52);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
     text-shadow:0 .08em .5em rgba(0,0,0,.98),0 0 .22em rgba(0,0,0,.85);}
   .cur{display:inline-block;width:.08em;height:1em;background:currentColor;margin-left:.06em;vertical-align:-0.12em;animation:blink 1s steps(1) infinite;}
   @keyframes blink{50%{opacity:0;}}
@@ -61,13 +61,14 @@
   .numcol.erp .nv{color:#a8ccff;} .numcol.xdl .nv{color:#a8f0c6;}
   #numdiff{background:rgba(255,120,60,.16);border:1px solid #ff8a4a;border-radius:.4em;padding:.28em .7em;font-weight:800;font-size:min(1.6vw,2vh);color:#ffc79c;text-align:center;line-height:1.3;}
   /* 場景6：有憑據的答案卡＋CTA */
-  #anscard{max-width:min(62%,64vh);margin:0 auto;background:rgba(8,12,20,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(180,210,255,.18);border-radius:.8em;padding:.7em 1em;text-align:center;}
-  #ask6{font-size:min(1.8vw,2.2vh);color:#bcd2ee;margin-bottom:.4vh;}
-  #ansHead{font-weight:800;font-size:min(3.4vw,4vh);color:#fff2d8;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
-  #evid{margin-top:.7vh;opacity:0;transition:opacity .6s;text-align:left;}
-  #evid .erow{display:flex;justify-content:space-between;gap:1.2em;font-size:min(1.9vw,2.3vh);padding:.14em 0;border-bottom:1px solid rgba(255,255,255,.08);}
-  #evid .ek{color:#bcd2ee;} #evid .ev{font-weight:700;color:#fff;}
-  #evid .esrc{margin-top:.5vh;font-size:min(1.4vw,1.7vh);color:#9fb2cc;}
+  #s6 .center{left:3%;right:3%;bottom:4%;} /* 答案卡改貼底、加寬，讓中央三個角色的臉露出 */
+  #anscard{max-width:min(94%,1060px);margin:0 auto;background:rgba(8,12,20,.52);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(180,210,255,.18);border-radius:.7em;padding:.5em .9em;text-align:center;}
+  #ask6{font-size:min(1.6vw,2vh);color:#bcd2ee;margin-bottom:.2vh;}
+  #ansHead{font-weight:800;font-size:min(2.7vw,3.3vh);color:#fff2d8;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
+  #evid{margin-top:.5vh;opacity:0;transition:opacity .6s;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:.5vh .8vw;} /* 證據改橫向一排小卡，壓低高度 */
+  #evid .erow{display:flex;flex-direction:column;justify-content:center;gap:.05em;border-bottom:none;background:rgba(255,255,255,.06);border-radius:.4em;padding:.22em .7em;min-width:min(17vw,20vh);}
+  #evid .ek{color:#bcd2ee;font-size:min(1.3vw,1.6vh);} #evid .ev{font-weight:700;color:#fff;font-size:min(1.9vw,2.3vh);}
+  #evid .esrc{flex-basis:100%;margin-top:.3vh;font-size:min(1.3vw,1.6vh);color:#9fb2cc;}
   #slogan{margin-top:1vh;font-weight:800;font-size:min(2.8vw,3.3vh);letter-spacing:.04em;color:#ffcf8a;opacity:0;transition:opacity .6s;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
   #cta{margin-top:1.1vh;opacity:0;transition:opacity .6s;}
   #cta .ctabtn{display:inline-block;background:linear-gradient(180deg,#ffd98a,#e8a24a);color:#2a1a06;font-weight:800;font-size:min(2vw,2.5vh);letter-spacing:.04em;padding:.4em 1em;border-radius:.5em;box-shadow:0 .5vh 2vh rgba(232,140,40,.4);}
@@ -203,7 +204,7 @@
   <div id="start">
     <div class="kick">SUPPLY CHAIN ‧ 開場 ‧ Q 版公仔真人化</div>
     <h1>最簡單的問題，最難的答案</h1>
-    <div class="meta">含旁白約 1～1.5 分鐘 ‧ 建議全螢幕</div>
+    <div class="meta">含旁白約 1.5 分鐘 ‧ 建議全螢幕</div>
     <button id="playBtn">▶ 開 始</button>
     <div class="keys"><b>空白鍵</b> 暫停／繼續　　<b>→ / 點擊</b> 下一段　　<b>R</b> 重播　　<b>音樂🔊</b> M　　<b>旁白🗣</b> N</div>
     <div class="vrow">🌐 旁白語言：<select id="langSel0" title="旁白語言"></select></div>
@@ -239,7 +240,7 @@ addEventListener('resize',layout);addEventListener('load',layout);
 const VIDS=[...document.querySelectorAll('.vid')]; // index 0..7 對應 v1..v8、對應場景 0..7
 VIDS.forEach((v,i)=>{const n=v.getAttribute('data-v');v.addEventListener('error',()=>{v.dataset.bad='1';v.style.display='none';});
   v.src='videos/v'+n+'.mp4';});
-function sceneFillRate(i){const vd=(VIDS[i]&&VIDS[i].duration)?VIDS[i].duration:10;let sd=DUR[i];if(N.on&&lang==='dori'&&VO[i]&&VO[i].duration)sd=Math.max(DUR[i],VO[i].duration);return clamp(vd/sd,0.45,1);} // 放慢影片填滿整幕、盡量不循環
+function sceneFillRate(i){const vd=(VIDS[i]&&VIDS[i].duration)?VIDS[i].duration:10;const sd=N.on?estDur(i):DUR[i];return clamp(vd/sd,0.45,1);} // 用旁白估長算填幕倍率，放慢影片填滿整幕、盡量不循環
 function playVid(i){VIDS.forEach((v,k)=>{if(k===i){if(!v.dataset.bad){try{v.muted=true;v.currentTime=0;v.playbackRate=sceneFillRate(i)*speed;if(playing){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else{v.pause();}}catch(e){}}}else{try{v.pause();}catch(e){}}});}
 function pauseAllVids(){VIDS.forEach(v=>{try{v.pause();}catch(e){}});}
 function resumeVid(i){const v=VIDS[i];if(v&&!v.dataset.bad){const p=v.play();if(p&&p.catch)p.catch(()=>{});}}
@@ -276,7 +277,7 @@ function applyStyle(k){if(!STYLES[k])return;styleKey=k;const a=$('styleSel'),b=$
 function buildStyleSel(){['styleSel','styleSel0'].forEach(id=>{const sel=$(id);if(!sel)return;sel.innerHTML='';Object.keys(STYLES).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=STYLES[k].name;sel.appendChild(o);});sel.value=styleKey;});}
 buildStyleSel();
 function _impulse(c,dur,decay){const len=Math.floor(c.sampleRate*dur);const b=c.createBuffer(2,len,c.sampleRate);for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay);}return b;}
-function initAudio(){if(M.ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const c=M.ctx=new AC();
+function initAudio(){if(M.ctx)return;if(M.vol<=0)return;/* 合成配樂已停用(改用 bgm.mp3)，不建 AudioContext；musicScene/musicTick 靠 !M.ctx 守衛自動略過 */const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const c=M.ctx=new AC();
   M.master=c.createGain();M.master.gain.value=M.vol;
   M.mlp=c.createBiquadFilter();M.mlp.type='lowpass';M.mlp.frequency.value=5200;M.master.connect(M.mlp);
   M.lim=c.createDynamicsCompressor();M.lim.threshold.value=-3;M.lim.knee.value=0;M.lim.ratio.value=20;M.lim.attack.value=0.003;M.lim.release.value=0.25;M.mlp.connect(M.lim);M.lim.connect(c.destination);
@@ -329,7 +330,7 @@ const LANG={
    '天黑了，忙了一整天，我最放不下的還是——這個答案，真的對嗎？',
    '而這，只是這週幾百個品項裡的其中一個。',
    '那如果，有一位真正懂供應鏈的 AI 同事呢？同一句問題，它同時查完四個部門、六張表，還比對了 ERP 跟新得利——幾秒鐘，就把答案湊齊。',
-   '山苦瓜，下週不會缺貨：可用庫存三百二十箱、預估需求二百一十箱、下一批八月十二號到；兩套系統差的十八箱，是待驗收批次。原本要半天、問四個部門、翻六張表，現在幾十秒、問一句，每個答案都附上來源。'],
+   '山苦瓜，下週不會缺貨：可用庫存三百二十箱、預估需求二百一十箱、下一批八月十二號到；兩套系統差的十八箱，是待驗收批次。原本要半天、翻六張表，現在問一句、幾十秒，答案還附上來源。'],
   q:'山苦瓜，下週會不會缺貨？',ans:'「不會。我幫你看過了。」',slogan:'隨問，隨答。',
   depts:['倉管','生管','採購','品管'],tables:['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'],
   s2:'一個問題，被切成<b style="color:#ff9a6a">四塊</b>。',
@@ -343,11 +344,11 @@ const LANG={
    "A colleague casually asks: bitter gourd — will we run out next week?",
    "The question lands on supply chain — and the answer is a four-piece puzzle: Warehouse, how much stock is left? Planning, do we have enough raw material? Purchasing, when does the next batch arrive? QC, when's the inspection report ready? I only hold one of those pieces — the rest, I ask for, colleague by colleague.",
    "Sure, I could look it up myself — but just digging through the data means opening the stock sheet, the forecast, the lead-time sheet, purchase orders, receiving records, QC logs — six sheets, cross-checked one by one, a whole afternoon gone.",
-   "Worse still, ERP and the second inventory system don't even agree. Which number do I trust?",
+   "Worse still — for the same bitter gourd, ERP shows 302 boxes but the second system shows 284. An 18-box gap. Which one do I trust?",
    "Night falls. A whole day's work. And what I still can't shake is — is this answer even right?",
    "And bitter gourd is just one of the hundreds of items I'm watching this week.",
-   "But what if there were an AI teammate who truly understood supply chain — and could answer these questions instantly? A colleague just asks, and it handles the rest.",
-   "The same question, asked again by a colleague. This time, the answer comes in seconds. They ask, it answers — and we get a lot of time back."],
+   "But what if you had an AI teammate who truly understood supply chain? One question — and it checks all four departments, all six sheets, and reconciles ERP against the second system, all at once. In seconds, it has the whole answer.",
+   "Bitter gourd won't run out next week: 320 boxes on hand, 210 forecast demand, next batch arrives August 12th; the 18-box gap between the two systems is a pending-inspection batch. What used to take half a day and six sheets now takes one question and seconds — every answer with its source."],
   q:'Bitter gourd — will we run out next week?',ans:'“No. I’ve already checked for you.”',slogan:'Ask anytime. Answered instantly.',
   depts:['Warehouse','Planning','Purchasing','QC'],tables:['Stock','Forecast','Lead-time','PO','Receiving','QC log'],
   s2:'One question, <b style="color:#ff9a6a">split four ways</b>.',
@@ -361,11 +362,11 @@ const LANG={
    '同僚が軽く一言。ゴーヤ、来週は欠品する？',
    '問題はサプライチェーンに回ってくる。その答えは、四つのピースを揃えないと出ない。倉庫管理、在庫はあといくつ？生産管理、原料は足りる？購買、次のロットはいつ入る？品質管理、検査報告はいつ出る？私が持っているのは、そのうちのひとつだけ。残りは、同僚に一人ずつ聞いて回る。',
    'もちろん自分で調べてもいい。でも資料をめくるだけでも、在庫表、予測表、納期表、発注書、検収記録、品質検査記録——六枚の表を広げて、一枚ずつ照合して、午後がまるごと消える。',
-   '厄介なのは、ERPと別の在庫システムで数字が合わないこと。どちらを信じればいい？',
+   '厄介なのは、同じゴーヤなのに、ERPは302箱、新得利は284箱——18箱もずれていること。どちらを信じればいい？',
    '日が暮れ、丸一日働いた。それでも引っかかるのは——この答え、本当に正しい？',
    'そしてゴーヤは、今週見るべき数百の品目のひとつにすぎない。',
-   'もし、サプライチェーンを本当に理解したAIの同僚がいて、こうした質問に即座に答えてくれたら？同僚はひと言聞くだけ、あとは全部任せられる。',
-   '同じ質問を、同僚がもう一度。今度は数秒で答えが出る。彼が聞けば、AIが答える——そして私たちは、多くの時間を取り戻す。'],
+   'もし、サプライチェーンを本当に理解したAIの同僚がいたら？ひとつの質問で、四つの部門と六枚の表を同時に確認し、ERPと新得利まで突き合わせる——数秒で、答えをすべて揃えてくれる。',
+   'ゴーヤは来週欠品しません。在庫320箱、予測需要210箱、次回入荷は8月12日。二つのシステムの差18箱は検収待ちのロットです。半日かけて六枚の表をめくっていた作業が、いまはひと言、数十秒——しかも答えには必ず出典がつく。'],
   q:'ゴーヤ、来週は欠品する？',ans:'「いいえ。確認しておきました。」',slogan:'聞けば、すぐ答える。',
   depts:['倉庫','生産','購買','品質'],tables:['在庫表','予測表','納期表','発注書','検収記録','品質検査'],
   s2:'ひとつの質問が、<b style="color:#ff9a6a">四つに分かれる</b>。',
@@ -443,7 +444,7 @@ function doSpeak(i){const txt=NARR[i];if(!txt)return;
     const chunk=parts[idx++];let spk=chunk;if(/^zh/i.test(L.code))spk=spk.replace(/AI/g,'A I');
     if(i===2)for(let k=0;k<LBL.length;k++){if(chunk.indexOf(LBL[k])>=0||(L.tables[k]&&chunk.toLowerCase().indexOf(L.tables[k].toLowerCase())>=0))lblShown[k]=1;}
     if(i===1)for(let k=0;k<DEPTS.length;k++){if(chunk.indexOf(DEPTS[k])>=0||(L.depts[k]&&chunk.toLowerCase().indexOf(L.depts[k].toLowerCase())>=0))qTarget=k;}
-    const u=new SpeechSynthesisUtterance(spk);if(N.voice)u.voice=N.voice;u.lang=L.code;u.rate=(i<=3?0.97:1.0);u.pitch=1.0;u.volume=1;
+    const u=new SpeechSynthesisUtterance(spk);if(N.voice)u.voice=N.voice;u.lang=L.code;u.rate=clamp((i<=3?0.97:1.0)*speed,0.5,3);u.pitch=1.0;u.volume=1;
     u.onend=u.onerror=()=>{if(N.cur===token)next();};
     N.guard=setTimeout(()=>{if(N.cur===token){N.active=false;duck();}},14000);
     try{speechSynthesis.speak(u);}catch(e){next();}};
@@ -498,9 +499,9 @@ function render(){
    const np=$('numpanel');if(np)np.style.opacity=smooth((segElapsed-2.4)/0.8).toFixed(3);}
   // 場景6：有憑據的答案卡→標語→CTA，依 segElapsed 推進（不受末幕 ls 上限限制，鋪滿整段並定格保留）
   {const p=segElapsed;
-   $('evid').style.opacity=smooth((p-2.6)/0.9).toFixed(3);
-   $('slogan').style.opacity=smooth((p-5.6)/0.9).toFixed(3);
-   $('cta').style.opacity=smooth((p-8)/0.9).toFixed(3);}
+   $('evid').style.opacity=smooth((p-2.2)/0.9).toFixed(3);
+   $('slogan').style.opacity=smooth((p-7)/0.9).toFixed(3);
+   $('cta').style.opacity=smooth((p-11)/0.9).toFixed(3);}
 
   if(tlPhasesEl){const ch=tlPhasesEl.children;const af=N.on?clamp(segElapsed/estDur(i),0,1):clamp((t-B[i])/DUR[i],0,1);for(let j=0;j<ch.length;j++){ch[j].classList.toggle('active',j===i);ch[j].classList.toggle('done',j<i);ch[j].querySelector('.pb i').style.width=(j<i?100:(j===i?af*100:0))+'%';}
     if(bp2)bp2.textContent=(playing&&t<TOTAL)?'⏸ 暫停':'▶ 播放';}
@@ -563,8 +564,8 @@ $('btnPrev').addEventListener('click',e=>{e.stopPropagation();jumpTo(sceneAt(t)-
 $('btnNext2').addEventListener('click',e=>{e.stopPropagation();jumpTo(sceneAt(t)+1);});
 bp2.addEventListener('click',e=>{e.stopPropagation();started?toggle():begin();});
 $('btnReplay2').addEventListener('click',e=>{e.stopPropagation();replay();});
-$('btnSpeed').addEventListener('click',e=>{e.stopPropagation();if(N.on&&lang!=='dori')return;si=(si+1)%SPEEDS.length;speed=SPEEDS[si];VO.forEach(a=>{try{a.playbackRate=speed;}catch(_){}});VIDS.forEach((v,k)=>{try{v.playbackRate=sceneFillRate(k)*speed;}catch(_){}});$('btnSpeed').textContent='速度 ×'+speed;});
-function syncSpeedBtn(){const bs=$('btnSpeed');if(!bs)return;const dis=N.on&&lang!=='dori';bs.disabled=dis;bs.style.opacity=dis?'0.45':'';bs.title=dis?'系統 TTS 語音無法變速；改用「Dori 真人配音」即可調速':'';if(dis){si=0;speed=1;bs.textContent='速度 ×1';}}
+$('btnSpeed').addEventListener('click',e=>{e.stopPropagation();si=(si+1)%SPEEDS.length;speed=SPEEDS[si];VO.forEach(a=>{try{a.playbackRate=speed;}catch(_){}});VIDS.forEach((v,k)=>{try{v.playbackRate=sceneFillRate(k)*speed;}catch(_){}});$('btnSpeed').textContent='速度 ×'+speed;}); // TTS 變速：每段旁白 chunk 在 doSpeak 依當下 speed 設 u.rate
+function syncSpeedBtn(){const bs=$('btnSpeed');if(!bs)return;bs.disabled=false;bs.style.opacity='';bs.title='調整播放速度（旁白＋影片同步變速）';}
 syncSpeedBtn();
 $('btnMute2').addEventListener('click',e=>{e.stopPropagation();if(!M.ctx)initAudio();M.muted=!M.muted;duck();$('btnMute2').textContent=M.muted?'🔇 靜音':'🔊 音樂';$('btnMute2').classList.toggle('on',!M.muted);});
 $('btnNarr2').addEventListener('click',e=>{e.stopPropagation();N.on=!N.on;if(!N.on)stopNarr();else if(started)speak(sceneAt(t));$('btnNarr2').textContent=N.on?'🗣 旁白':'🤐 旁白關';$('btnNarr2').classList.toggle('on',N.on);syncSpeedBtn();});
