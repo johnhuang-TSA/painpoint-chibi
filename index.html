@@ -194,7 +194,6 @@
       <button id="btnSpeed">速度 ×1</button>
       <span class="sep">｜</span>
       <button id="btnMute2" class="on">🔊 音樂</button>
-      <select id="styleSel" title="音樂風格"></select>
       <button id="btnNarr2" class="on">🗣 旁白</button>
       <select id="langSel" title="旁白語言"></select>
       <button id="btnReplay2">↻ 重播</button>
@@ -207,7 +206,7 @@
     <div class="meta">含旁白約 1～1.5 分鐘 ‧ 建議全螢幕</div>
     <button id="playBtn">▶ 開 始</button>
     <div class="keys"><b>空白鍵</b> 暫停／繼續　　<b>→ / 點擊</b> 下一段　　<b>R</b> 重播　　<b>音樂🔊</b> M　　<b>旁白🗣</b> N</div>
-    <div class="vrow">🌐 旁白語言：<select id="langSel0" title="旁白語言"></select>　🎵 音樂：<select id="styleSel0" title="音樂風格"></select></div>
+    <div class="vrow">🌐 旁白語言：<select id="langSel0" title="旁白語言"></select></div>
   </div>
 </div>
 
@@ -265,7 +264,7 @@ function typeInto(el,text,startLs,cps,ls,showCursor){
 }
 
 // ===== 音樂（Web Audio）— 預設電影弦樂 =====
-const M={ctx:null,master:null,mlp:null,lim:null,bus:null,padOsc:[],padGain:null,padFilt:null,revWet:null,muted:false,vol:0.42,sched:0,beat:0};
+const M={ctx:null,master:null,mlp:null,lim:null,bus:null,padOsc:[],padGain:null,padFilt:null,revWet:null,muted:false,vol:0,sched:0,beat:0}; // vol=0：合成配樂靜音，改用影片抽出的 bgm.mp3 當統一背景樂
 const STYLES={
  cinematic:{name:'🎬 電影弦樂',padMul:1,cutMul:1,pianoMul:1,pulseMul:1,rev:0.55,arp:0,bell:0},
  piano:{name:'🎹 溫暖鋼琴',padMul:0.55,cutMul:1.5,pianoMul:2.0,pulseMul:0.3,rev:0.62,arp:0,bell:0},
@@ -393,6 +392,13 @@ let lang='zh',L=LANG[lang];
 let NARR=L.narr;
 const N={on:true,active:false,voice:null,pending:null,guard:null,poll:null,cur:null,curClip:null,sup:('speechSynthesis' in window)};
 const VO=[];for(let _i=0;_i<8;_i++){const a=new Audio();a.preload='none';VO.push(a);} // Dori 已停用，不預載音檔（保留陣列避免其他引用出錯）
+// 統一背景樂：從其中一段影片抽出的音樂（audio/bgm.mp3），全片循環播放、旁白時壓低、可靜音
+const BGM=new Audio('audio/bgm.mp3');BGM.loop=true;BGM.preload='auto';const bgmBase=0.55;let bgmFadeT=null;
+try{BGM.volume=0;}catch(e){}
+BGM.addEventListener('error',()=>{BGM.dataset.bad='1';});
+function bgmGo(reset){if(BGM.dataset.bad)return;if(bgmFadeT){clearInterval(bgmFadeT);bgmFadeT=null;}try{if(reset)BGM.currentTime=0;const p=BGM.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}duck();}
+function bgmStop(){if(bgmFadeT)clearInterval(bgmFadeT);bgmFadeT=setInterval(()=>{let v=(BGM.volume||0)-0.05;if(v<=0.01){v=0;try{BGM.pause();}catch(e){}clearInterval(bgmFadeT);bgmFadeT=null;}try{BGM.volume=v;}catch(e){}},70);}
+function bgmPause(){if(bgmFadeT){clearInterval(bgmFadeT);bgmFadeT=null;}try{BGM.pause();}catch(e){}}
 const NARR_ZH=LANG.zh.narr;
 const _frac=(txt,names)=>names.map(n=>{const idx=txt.indexOf(n);return idx<0?1:idx/txt.length;});
 const VO2FRAC=_frac(NARR_ZH[1],DEPTS);
@@ -424,7 +430,9 @@ function buildLangSel(){['langSel','langSel0'].forEach(id=>{const sel=$(id);if(!
 if(N.sup){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
 buildLangSel();
 applyEvid(lang); // 初始化場景6證據卡文字（預設 dori→中文）
-function duck(){if(!M.master)return;const tgt=M.muted?0:(N.on&&N.active?M.vol*0.22:M.vol);try{M.master.gain.setTargetAtTime(tgt,M.ctx.currentTime,0.12);}catch(e){M.master.gain.value=tgt;}}
+function duck(){const ducking=(N.on&&N.active);
+  if(M.master){const tgt=M.muted?0:(ducking?M.vol*0.22:M.vol);try{M.master.gain.setTargetAtTime(tgt,M.ctx.currentTime,0.12);}catch(e){M.master.gain.value=tgt;}}
+  if(!bgmFadeT){try{BGM.volume=M.muted?0:(ducking?bgmBase*0.42:bgmBase);}catch(e){}}} // 旁白時背景樂壓到 42%（約 0.23），旁白空檔回滿 0.55
 function stopNarr(){clearTimeout(N.pending);clearTimeout(N.guard);clearInterval(N.poll);N.cur=null;
   if(N.curClip){try{N.curClip.pause();N.curClip.onended=N.curClip.onerror=null;}catch(e){}N.curClip=null;}
   if(N.sup)speechSynthesis.cancel();N.active=false;duck();}
@@ -509,7 +517,7 @@ function loop(now){
     const hp=B[ci+1]-FADE-0.05;
     if(N.on&&N.active&&ci<DUR.length-1&&nt>=hp)nt=Math.min(nt,hp);
     if(N.on&&N.active&&nt>=TOTAL)nt=Math.min(nt,TOTAL-0.01);
-    t=nt;if(t>=TOTAL){t=TOTAL;playing=false;try{if(M.padGain)M.padGain.gain.setTargetAtTime(0,M.ctx.currentTime,0.7);if(M.master&&!M.muted)M.master.gain.setTargetAtTime(M.vol*0.12,M.ctx.currentTime,1.0);}catch(e){}} // 片尾音樂淡出，不留無限嗡鳴
+    t=nt;if(t>=TOTAL){t=TOTAL;playing=false;bgmStop();try{if(M.padGain)M.padGain.gain.setTargetAtTime(0,M.ctx.currentTime,0.7);if(M.master&&!M.muted)M.master.gain.setTargetAtTime(M.vol*0.12,M.ctx.currentTime,1.0);}catch(e){}} // 片尾音樂淡出，不留無限嗡鳴
     const cs=sceneAt(t);if(cs!==segActive){segActive=cs;segElapsed=0;}segElapsed+=rawDt;
   }
   if(started){render();musicTick();}
@@ -519,19 +527,19 @@ function loop(now){
 let uiT;
 function pokeUI(){const b=$('bottomUI');if(!b)return;b.classList.remove('hideui');clearTimeout(uiT);if(started&&playing)uiT=setTimeout(()=>{if(started&&playing)b.classList.add('hideui');},2600);} // 播放中無操作 2.6s 後自動隱藏控制列
 addEventListener('pointermove',pokeUI);addEventListener('keydown',pokeUI);
-function begin(){started=true;playing=true;t=0;lastTs=0;curScene=0;$('start').classList.add('hide');$('bottomUI').classList.add('show');document.body.classList.add('cine');initAudio();unlockAudio();playVid(0);musicScene(0);speakNow(0);pokeUI();} // 不再自動強制全螢幕
+function begin(){started=true;playing=true;t=0;lastTs=0;curScene=0;$('start').classList.add('hide');$('bottomUI').classList.add('show');document.body.classList.add('cine');initAudio();unlockAudio();bgmGo(true);playVid(0);musicScene(0);speakNow(0);pokeUI();} // 不再自動強制全螢幕
 function unlockAudio(){try{if(M.ctx&&M.ctx.state==='suspended')M.ctx.resume();}catch(e){}}
 function nextScene(){if(!started)return;for(let i=1;i<B.length;i++){if(B[i]>t+0.05){t=B[i];if(t>=TOTAL){t=TOTAL;playing=false;}return;}}t=TOTAL;playing=false;}
-function replay(){if(!started){begin();return;}t=0;playing=true;lastTs=0;curScene=-1;stopNarr();}
+function replay(){if(!started){begin();return;}t=0;playing=true;lastTs=0;curScene=-1;stopNarr();bgmGo(true);}
 function toggle(){if(!started)return;if(t>=TOTAL){replay();return;}playing=!playing;
   if(!playing){
     if(N.curClip&&!N.curClip.paused){clearTimeout(N.pending);clearTimeout(N.guard);N.curClip.pause();}
     else stopNarr();
-    pauseAllVids();
+    pauseAllVids();bgmPause();
     try{if(M.ctx)M.ctx.suspend();}catch(e){}}
   else{
     try{if(M.ctx)M.ctx.resume();}catch(e){}
-    resumeVid(sceneAt(t));
+    bgmGo(false);resumeVid(sceneAt(t));
     if(N.curClip&&N.curClip.paused&&!N.curClip.ended){N.active=true;duck();const p=N.curClip.play();if(p&&p.catch)p.catch(()=>{});}
     else if(N.on)speak(sceneAt(t));}}
 $('playBtn').addEventListener('click',e=>{e.stopPropagation();begin();});
