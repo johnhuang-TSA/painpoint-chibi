@@ -200,7 +200,8 @@ addEventListener('resize',layout);addEventListener('load',layout);
 const VIDS=[...document.querySelectorAll('.vid')]; // index 0..7 對應 v1..v8、對應場景 0..7
 VIDS.forEach((v,i)=>{const n=v.getAttribute('data-v');v.addEventListener('error',()=>{v.dataset.bad='1';v.style.display='none';});
   v.src='videos/v'+n+'.mp4';});
-function playVid(i){VIDS.forEach((v,k)=>{if(k===i){if(!v.dataset.bad){try{v.currentTime=0;const p=v.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}}}else{try{v.pause();}catch(e){}}});}
+function sceneFillRate(i){const vd=(VIDS[i]&&VIDS[i].duration)?VIDS[i].duration:10;let sd=DUR[i];if(N.on&&lang==='dori'&&VO[i]&&VO[i].duration)sd=Math.max(DUR[i],VO[i].duration);return clamp(vd/sd,0.45,1);} // 放慢影片填滿整幕、盡量不循環
+function playVid(i){VIDS.forEach((v,k)=>{if(k===i){if(!v.dataset.bad){try{v.currentTime=0;v.playbackRate=sceneFillRate(i)*speed;const p=v.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}}}else{try{v.pause();}catch(e){}}});}
 function pauseAllVids(){VIDS.forEach(v=>{try{v.pause();}catch(e){}});}
 function resumeVid(i){const v=VIDS[i];if(v&&!v.dataset.bad){const p=v.play();if(p&&p.catch)p.catch(()=>{});}}
 
@@ -413,6 +414,8 @@ function render(){
   if(i!==curScene){curScene=i;if(started)onEnter(i);}
   for(let k=0;k<SCENES.length;k++)SCENES[k].style.opacity=sceneOpacity(k).toFixed(3);
   const ls=t-B[i];
+  // 影片無縫：接縫（循環頭尾）處微降透明度，遮住跳點
+  {const cv=VIDS[i];if(cv&&!cv.dataset.bad&&cv.duration>1){const D=cv.duration,ct=cv.currentTime,edge=Math.min(ct,D-ct);cv.style.opacity=(0.5+0.5*smooth(edge/0.5)).toFixed(3);}}
   if(N.on&&lang==='dori'&&i===1&&VO[1]&&!VO[1].paused){const d=VO[1].duration||0,ct=VO[1].currentTime;
     if(d)for(let k=DEPTS.length-1;k>=0;k--){if(ct>=VO2FRAC[k]*d){qTarget=k;break;}}}
   if(N.on&&lang==='dori'&&i===2&&VO[2]&&!VO[2].paused){const d=VO[2].duration||0,ct=VO[2].currentTime;if(d)for(let k=0;k<LBL.length;k++)if(ct>=VO3FRAC[k]*d)lblShown[k]=1;}
@@ -495,7 +498,7 @@ $('btnPrev').addEventListener('click',e=>{e.stopPropagation();jumpTo(sceneAt(t)-
 $('btnNext2').addEventListener('click',e=>{e.stopPropagation();jumpTo(sceneAt(t)+1);});
 bp2.addEventListener('click',e=>{e.stopPropagation();started?toggle():begin();});
 $('btnReplay2').addEventListener('click',e=>{e.stopPropagation();replay();});
-$('btnSpeed').addEventListener('click',e=>{e.stopPropagation();if(N.on&&lang!=='dori')return;si=(si+1)%SPEEDS.length;speed=SPEEDS[si];VO.forEach(a=>{try{a.playbackRate=speed;}catch(_){}});VIDS.forEach(v=>{try{v.playbackRate=speed;}catch(_){}});$('btnSpeed').textContent='速度 ×'+speed;});
+$('btnSpeed').addEventListener('click',e=>{e.stopPropagation();if(N.on&&lang!=='dori')return;si=(si+1)%SPEEDS.length;speed=SPEEDS[si];VO.forEach(a=>{try{a.playbackRate=speed;}catch(_){}});VIDS.forEach((v,k)=>{try{v.playbackRate=sceneFillRate(k)*speed;}catch(_){}});$('btnSpeed').textContent='速度 ×'+speed;});
 function syncSpeedBtn(){const bs=$('btnSpeed');if(!bs)return;const dis=N.on&&lang!=='dori';bs.disabled=dis;bs.style.opacity=dis?'0.45':'';bs.title=dis?'系統 TTS 語音無法變速；改用「Dori 真人配音」即可調速':'';if(dis){si=0;speed=1;bs.textContent='速度 ×1';}}
 syncSpeedBtn();
 $('btnMute2').addEventListener('click',e=>{e.stopPropagation();if(!M.ctx)initAudio();M.muted=!M.muted;duck();$('btnMute2').textContent=M.muted?'🔇 靜音':'🔊 音樂';$('btnMute2').classList.toggle('on',!M.muted);});
