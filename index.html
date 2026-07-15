@@ -417,7 +417,7 @@ let NARR=L.narr;
 const N={on:true,active:false,voice:null,pending:null,guard:null,poll:null,cur:null,curClip:null,sup:('speechSynthesis' in window)};
 const VO=[];for(let _i=0;_i<8;_i++){const a=new Audio();a.preload='none';VO.push(a);} // Dori 已停用，不預載音檔（保留陣列避免其他引用出錯）
 // 統一背景樂：從其中一段影片抽出的音樂（audio/bgm.mp3），全片循環播放、旁白時壓低、可靜音
-const BGM=new Audio('audio/bgm.mp3');BGM.loop=true;BGM.preload='auto';const bgmBase=0.55;let bgmFadeT=null;
+const BGM=new Audio('audio/bgm.mp3');BGM.loop=true;BGM.preload='none';const bgmBase=0.55;let bgmFadeT=null; // 目前用內建合成配樂，bgm 不預載；要改用 bgm 時把 musicOn 設 true 即可
 let musicOn=false; // 改回內建合成配樂，不用影片抽出的 bgm.mp3（保留檔案備用）
 try{BGM.volume=0;}catch(e){}
 BGM.addEventListener('error',()=>{BGM.dataset.bad='1';});
