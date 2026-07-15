@@ -288,14 +288,14 @@ function typeInto(el,text,startLs,cps,ls,showCursor){
 }
 
 // ===== 音樂（Web Audio）— 預設電影弦樂 =====
-const M={ctx:null,master:null,mlp:null,lim:null,bus:null,padOsc:[],padGain:null,padFilt:null,revWet:null,muted:false,vol:0,sched:0,beat:0}; // vol=0：合成配樂靜音，改用影片抽出的 bgm.mp3 當統一背景樂
+const M={ctx:null,master:null,mlp:null,lim:null,bus:null,padOsc:[],padGain:null,padFilt:null,revWet:null,muted:false,vol:0.4,sched:0,beat:0}; // 重新啟用內建合成配樂（為 8 幕情緒弧線量身），旁白時 duck 到 22%
 const STYLES={
  cinematic:{name:'🎬 電影弦樂',padMul:1,cutMul:1,pianoMul:1,pulseMul:1,rev:0.55,arp:0,bell:0},
  piano:{name:'🎹 溫暖鋼琴',padMul:0.55,cutMul:1.5,pianoMul:2.0,pulseMul:0.3,rev:0.62,arp:0,bell:0},
  ambient:{name:'🌌 空靈氛圍',padMul:1.4,cutMul:0.85,pianoMul:0.7,pulseMul:0.1,rev:1.0,arp:0,bell:1},
  tech:{name:'⚡ 輕快科技',padMul:0.7,cutMul:1.7,pianoMul:0.5,pulseMul:0.75,rev:0.32,arp:1,bell:0}
 };
-let styleKey='cinematic';const ST=()=>STYLES[styleKey];
+let styleKey='piano';const ST=()=>STYLES[styleKey]; // 溫暖鋼琴：鋼琴為主＋弦樂鋪底，貼合人的掙扎到釋然
 function applyStyle(k){if(!STYLES[k])return;styleKey=k;const a=$('styleSel'),b=$('styleSel0');if(a)a.value=k;if(b)b.value=k;if(M.revWet)M.revWet.gain.value=ST().rev;if(M.ctx)musicScene(sceneAt(t));}
 function buildStyleSel(){['styleSel','styleSel0'].forEach(id=>{const sel=$(id);if(!sel)return;sel.innerHTML='';Object.keys(STYLES).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=STYLES[k].name;sel.appendChild(o);});sel.value=styleKey;});}
 buildStyleSel();
@@ -418,7 +418,7 @@ const N={on:true,active:false,voice:null,pending:null,guard:null,poll:null,cur:n
 const VO=[];for(let _i=0;_i<8;_i++){const a=new Audio();a.preload='none';VO.push(a);} // Dori 已停用，不預載音檔（保留陣列避免其他引用出錯）
 // 統一背景樂：從其中一段影片抽出的音樂（audio/bgm.mp3），全片循環播放、旁白時壓低、可靜音
 const BGM=new Audio('audio/bgm.mp3');BGM.loop=true;BGM.preload='auto';const bgmBase=0.55;let bgmFadeT=null;
-let musicOn=true; // 統一背景樂＝audio/bgm.mp3（目前用 v2 的音樂；換片段＝重壓 bgm.mp3、換整首開關即可）
+let musicOn=false; // 改回內建合成配樂，不用影片抽出的 bgm.mp3（保留檔案備用）
 try{BGM.volume=0;}catch(e){}
 BGM.addEventListener('error',()=>{BGM.dataset.bad='1';});
 function bgmGo(reset){if(!musicOn||BGM.dataset.bad)return;if(bgmFadeT){clearInterval(bgmFadeT);bgmFadeT=null;}try{if(reset)BGM.currentTime=0;const p=BGM.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}duck();}
