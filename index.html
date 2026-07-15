@@ -127,6 +127,20 @@
     #rotate .ic{font-size:17vw;animation:rotanim 2.6s ease-in-out infinite;} #rotate h2{font-size:6vw;font-weight:700;} #rotate p{font-size:4vw;color:#dfeaff;line-height:1.8;}
   }
   @keyframes rotanim{0%,35%{transform:rotate(0);}55%,100%{transform:rotate(90deg);}}
+  /* ── 第二輪：逐字稿面板 ── */
+  #transcript{position:absolute;top:5%;bottom:13%;right:2%;width:min(34%,420px);z-index:22;background:rgba(6,9,16,.82);border:1px solid rgba(150,180,220,.25);border-radius:.6em;padding:.6em .7em;overflow-y:auto;display:none;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
+  #transcript.show{display:block;}
+  #trhead{font-size:min(1.4vw,1.7vh);color:#9fb2cc;letter-spacing:.08em;margin-bottom:.5em;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:.35em;}
+  .trline{font-size:min(1.55vw,1.95vh);line-height:1.5;color:#c9d6ea;padding:.35em .5em;border-radius:.35em;cursor:pointer;margin-bottom:.15em;transition:background .3s,color .3s;}
+  .trline:hover{background:rgba(150,190,240,.12);}
+  .trline.cur{background:rgba(120,160,210,.3);color:#fff;font-weight:600;}
+  .trline b{color:#8fb0d4;margin-right:.35em;}
+  /* ── 第二輪：無障礙（鍵盤焦點 + 減少動態）── */
+  #tlCtrl button:focus-visible,#playBtn:focus-visible,#langSel:focus-visible,#langSel0:focus-visible,.ph:focus-visible,.trline:focus-visible{outline:2px solid #9fc0e0;outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){ .cur{animation:none;opacity:1;} #rotate .ic{animation:none;} #grain{display:none;} }
+  /* ── 第二輪：手機直向仍可續看 ── */
+  #stayPortrait{margin-top:1vh;padding:2.4vw 7vw;font-size:4vw;border:none;border-radius:8px;background:rgba(255,255,255,.92);color:#123;font-weight:700;font-family:inherit;cursor:pointer;}
+  #rotate.dismissed{display:none!important;}
 </style>
 </head>
 <body>
@@ -188,18 +202,21 @@
   <div id="bottomUI">
     <div id="tlPhases"></div>
     <div id="tlCtrl">
-      <button id="btnPrev">⏮ 上一段</button>
-      <button id="btnPlay2">⏸ 暫停</button>
-      <button id="btnNext2">下一段 ⏭</button>
+      <button id="btnPrev" aria-label="上一段">⏮ 上一段</button>
+      <button id="btnPlay2" aria-label="暫停或繼續">⏸ 暫停</button>
+      <button id="btnNext2" aria-label="下一段">下一段 ⏭</button>
       <span class="sep">｜</span>
-      <button id="btnSpeed">速度 ×1</button>
+      <button id="btnSpeed" aria-label="播放速度">速度 ×1</button>
       <span class="sep">｜</span>
-      <button id="btnMute2" class="on">🔊 音樂</button>
-      <button id="btnNarr2" class="on">🗣 旁白</button>
-      <select id="langSel" title="旁白語言"></select>
-      <button id="btnReplay2">↻ 重播</button>
+      <button id="btnMute2" class="on" aria-label="音樂開關" aria-pressed="true">🔊 音樂</button>
+      <button id="btnNarr2" class="on" aria-label="旁白開關" aria-pressed="true">🗣 旁白</button>
+      <button id="btnScript" aria-label="逐字稿" aria-pressed="false">📄 逐字稿</button>
+      <select id="langSel" title="旁白語言" aria-label="旁白語言"></select>
+      <button id="btnReplay2" aria-label="重播">↻ 重播</button>
     </div>
   </div>
+
+  <div id="transcript" aria-label="逐字稿"><div id="trhead">逐字稿 / Transcript</div><div id="trbody"></div></div>
 
   <div id="start">
     <div class="kick">SUPPLY CHAIN ‧ 開場 ‧ Q 版公仔真人化</div>
@@ -211,7 +228,7 @@
   </div>
 </div>
 
-<div id="rotate"><div class="ic">📱</div><h2>請將手機橫放觀看</h2><p>這是 16:9 電影規格的開場影片<br>橫放才能完整、清晰呈現</p></div>
+<div id="rotate"><div class="ic">📱</div><h2>請將手機橫放觀看</h2><p>這是 16:9 電影規格的開場影片<br>橫放才能完整、清晰呈現</p><button id="stayPortrait">仍要直向觀看</button></div>
 
 <script>
 'use strict';
@@ -238,10 +255,11 @@ addEventListener('resize',layout);addEventListener('load',layout);
 
 // ---------- 影片：每幕一段，載入失敗(缺 v5~v8)則自動退回底色背景 ----------
 const VIDS=[...document.querySelectorAll('.vid')]; // index 0..7 對應 v1..v8、對應場景 0..7
-VIDS.forEach((v,i)=>{const n=v.getAttribute('data-v');v.addEventListener('error',()=>{v.dataset.bad='1';v.style.display='none';});
-  v.src='videos/v'+n+'.mp4';});
+VIDS.forEach((v,i)=>{v.addEventListener('error',()=>{v.dataset.bad='1';v.style.display='none';});});
+function ensureVid(i){const v=VIDS[i];if(v&&!v.getAttribute('src')){v.setAttribute('src','videos/v'+v.getAttribute('data-v')+'.mp4');}} // 分段載入：用到才設 src，開場只載前兩段
+ensureVid(0);ensureVid(1);
 function sceneFillRate(i){const vd=(VIDS[i]&&VIDS[i].duration)?VIDS[i].duration:10;const sd=N.on?estDur(i):DUR[i];return clamp(vd/sd,0.45,1);} // 用旁白估長算填幕倍率，放慢影片填滿整幕、盡量不循環
-function playVid(i){VIDS.forEach((v,k)=>{if(k===i){if(!v.dataset.bad){try{v.muted=true;v.currentTime=0;v.playbackRate=sceneFillRate(i)*speed;if(playing){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else{v.pause();}}catch(e){}}}else{try{v.pause();}catch(e){}}});}
+function playVid(i){ensureVid(i);ensureVid(i+1);VIDS.forEach((v,k)=>{if(k===i){if(!v.dataset.bad){try{v.muted=true;v.currentTime=0;v.playbackRate=sceneFillRate(i)*speed;if(playing){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else{v.pause();}}catch(e){}}}else{try{v.pause();}catch(e){}}});}
 function pauseAllVids(){VIDS.forEach(v=>{try{v.pause();}catch(e){}});}
 function resumeVid(i){const v=VIDS[i];if(v&&!v.dataset.bad){const p=v.play();if(p&&p.catch)p.catch(()=>{});}}
 
@@ -421,6 +439,7 @@ function applyLang(code){if(!LANG[code])return;lang=code;L=LANG[code];NARR=L.nar
   const set=(id,html)=>{const el=$(id);if(el)el.innerHTML=html;};
   set('s2line',L.s2);set('s3line',L.s3);set('sAline',L.sA);set('s4a',L.s4a);set('s4b',L.s4b);set('sBline',L.sB);set('s5line',L.s5);
   applyEvid(code); // 場景6 證據卡＋CTA＋新標語
+  if(scriptShown())buildTranscript(); // 逐字稿開著→換語言重建
   deptEls.forEach((el,k)=>{if(L.depts[k])el.textContent=L.depts[k];});
   lblEls.forEach((el,k)=>{if(L.tables[k])el.textContent=L.tables[k];});
   const a=$('langSel'),b=$('langSel0');if(a)a.value=code;if(b)b.value=code;
@@ -431,6 +450,10 @@ function buildLangSel(){['langSel','langSel0'].forEach(id=>{const sel=$(id);if(!
 if(N.sup){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
 buildLangSel();
 applyEvid(lang); // 初始化場景6證據卡文字（預設 dori→中文）
+// 逐字稿面板：列出目前語言的 8 段旁白，可點/按 Enter 跳段，播放中高亮當前段
+function buildTranscript(){const b=$('trbody');if(!b)return;b.innerHTML='';(L.narr||[]).forEach((tx,i)=>{const d=document.createElement('div');d.className='trline';d.tabIndex=0;d.dataset.i=i;d.innerHTML='<b>'+(i+1)+'.</b>'+tx;const go=ev=>{ev.stopPropagation();jumpTo(i);};d.addEventListener('click',go);d.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go(ev);}});b.appendChild(d);});highlightTranscript(sceneAt(t));}
+function highlightTranscript(i){const b=$('trbody');if(!b)return;for(const c of b.children)c.classList.toggle('cur',+c.dataset.i===i);}
+function scriptShown(){const e=$('transcript');return !!(e&&e.classList.contains('show'));}
 function duck(){const ducking=(N.on&&N.active);
   if(M.master){const tgt=M.muted?0:(ducking?M.vol*0.22:M.vol);try{M.master.gain.setTargetAtTime(tgt,M.ctx.currentTime,0.12);}catch(e){M.master.gain.value=tgt;}}
   if(!bgmFadeT){try{BGM.volume=M.muted?0:(ducking?bgmBase*0.42:bgmBase);}catch(e){}}} // 旁白時背景樂壓到 42%（約 0.23），旁白空檔回滿 0.55
@@ -473,6 +496,7 @@ function sceneOpacity(i){const s=B[i],e=B[i+1];
 function render(){
   const i=sceneAt(t);
   if(i!==curScene){curScene=i;if(started)onEnter(i);}
+  if(scriptShown())highlightTranscript(i);
   for(let k=0;k<SCENES.length;k++)SCENES[k].style.opacity=sceneOpacity(k).toFixed(3);
   const ls=t-B[i];
   // 影片無縫：接縫（循環頭尾）處微降透明度，遮住跳點
@@ -553,6 +577,7 @@ addEventListener('keydown',e=>{
   else if(e.key==='r'||e.key==='R'){e.preventDefault();replay();}
   else if(e.key==='m'||e.key==='M'){$('btnMute2').click();}
   else if(e.key==='n'||e.key==='N'){$('btnNarr2').click();}
+  else if(e.key==='s'||e.key==='S'){$('btnScript').click();}
 });
 const PHN=['一句話的問題','被切成四塊','被表淹沒','數字打架','深夜不確定','不只一個品項','一抹希望','隨問隨答'];
 const tlPhasesEl=$('tlPhases');
@@ -567,8 +592,10 @@ $('btnReplay2').addEventListener('click',e=>{e.stopPropagation();replay();});
 $('btnSpeed').addEventListener('click',e=>{e.stopPropagation();si=(si+1)%SPEEDS.length;speed=SPEEDS[si];VO.forEach(a=>{try{a.playbackRate=speed;}catch(_){}});VIDS.forEach((v,k)=>{try{v.playbackRate=sceneFillRate(k)*speed;}catch(_){}});$('btnSpeed').textContent='速度 ×'+speed;}); // TTS 變速：每段旁白 chunk 在 doSpeak 依當下 speed 設 u.rate
 function syncSpeedBtn(){const bs=$('btnSpeed');if(!bs)return;bs.disabled=false;bs.style.opacity='';bs.title='調整播放速度（旁白＋影片同步變速）';}
 syncSpeedBtn();
-$('btnMute2').addEventListener('click',e=>{e.stopPropagation();if(!M.ctx)initAudio();M.muted=!M.muted;duck();$('btnMute2').textContent=M.muted?'🔇 靜音':'🔊 音樂';$('btnMute2').classList.toggle('on',!M.muted);});
-$('btnNarr2').addEventListener('click',e=>{e.stopPropagation();N.on=!N.on;if(!N.on)stopNarr();else if(started)speak(sceneAt(t));$('btnNarr2').textContent=N.on?'🗣 旁白':'🤐 旁白關';$('btnNarr2').classList.toggle('on',N.on);syncSpeedBtn();});
+$('btnMute2').addEventListener('click',e=>{e.stopPropagation();if(!M.ctx)initAudio();M.muted=!M.muted;duck();$('btnMute2').textContent=M.muted?'🔇 靜音':'🔊 音樂';$('btnMute2').classList.toggle('on',!M.muted);$('btnMute2').setAttribute('aria-pressed',!M.muted);});
+$('btnNarr2').addEventListener('click',e=>{e.stopPropagation();N.on=!N.on;if(!N.on)stopNarr();else if(started)speak(sceneAt(t));$('btnNarr2').textContent=N.on?'🗣 旁白':'🤐 旁白關';$('btnNarr2').classList.toggle('on',N.on);$('btnNarr2').setAttribute('aria-pressed',N.on);syncSpeedBtn();});
+$('btnScript').addEventListener('click',e=>{e.stopPropagation();const on=!scriptShown();$('transcript').classList.toggle('show',on);$('btnScript').setAttribute('aria-pressed',on);$('btnScript').classList.toggle('on',on);if(on)buildTranscript();});
+$('stayPortrait').addEventListener('click',e=>{e.stopPropagation();$('rotate').classList.add('dismissed');});
 ['langSel','langSel0'].forEach(id=>{const el=$(id);if(el)el.addEventListener('change',e=>{e.stopPropagation();applyLang(e.target.value);});});
 ['styleSel','styleSel0'].forEach(id=>{const el=$(id);if(el)el.addEventListener('change',e=>{e.stopPropagation();if(!M.ctx)initAudio();applyStyle(e.target.value);});});
 
