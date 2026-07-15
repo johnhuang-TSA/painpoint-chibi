@@ -418,9 +418,10 @@ const N={on:true,active:false,voice:null,pending:null,guard:null,poll:null,cur:n
 const VO=[];for(let _i=0;_i<8;_i++){const a=new Audio();a.preload='none';VO.push(a);} // Dori 已停用，不預載音檔（保留陣列避免其他引用出錯）
 // 統一背景樂：從其中一段影片抽出的音樂（audio/bgm.mp3），全片循環播放、旁白時壓低、可靜音
 const BGM=new Audio('audio/bgm.mp3');BGM.loop=true;BGM.preload='auto';const bgmBase=0.55;let bgmFadeT=null;
+let musicOn=false; // 依使用者要求先把音樂拿掉；日後要換統一配樂改回 true（或換 bgm.mp3）即可
 try{BGM.volume=0;}catch(e){}
 BGM.addEventListener('error',()=>{BGM.dataset.bad='1';});
-function bgmGo(reset){if(BGM.dataset.bad)return;if(bgmFadeT){clearInterval(bgmFadeT);bgmFadeT=null;}try{if(reset)BGM.currentTime=0;const p=BGM.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}duck();}
+function bgmGo(reset){if(!musicOn||BGM.dataset.bad)return;if(bgmFadeT){clearInterval(bgmFadeT);bgmFadeT=null;}try{if(reset)BGM.currentTime=0;const p=BGM.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}duck();}
 function bgmStop(){if(bgmFadeT)clearInterval(bgmFadeT);bgmFadeT=setInterval(()=>{let v=(BGM.volume||0)-0.05;if(v<=0.01){v=0;try{BGM.pause();}catch(e){}clearInterval(bgmFadeT);bgmFadeT=null;}try{BGM.volume=v;}catch(e){}},70);}
 function bgmPause(){if(bgmFadeT){clearInterval(bgmFadeT);bgmFadeT=null;}try{BGM.pause();}catch(e){}}
 const NARR_ZH=LANG.zh.narr;
