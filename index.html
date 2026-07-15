@@ -31,7 +31,7 @@
   .big{font-weight:800;letter-spacing:.04em;font-size:min(3.8vw,4.4vh);}
   .mid{font-weight:700;letter-spacing:.03em;font-size:min(2.8vw,3.3vh);}
   /* 對話框：圓角＋立體＋朝上的尾巴（指向上方的角色），用顏色分說話者 */
-  .cap{display:inline-block;position:relative;padding:.34em 1em;border-radius:1em;background:rgba(10,14,24,.74);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  .cap{display:none;position:relative;padding:.34em 1em;border-radius:1em;background:rgba(10,14,24,.74);/* 依使用者要求拿掉下方對白框；改回 inline-block 即恢復 */backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
     border:1px solid rgba(255,255,255,.16);box-shadow:0 .5vh 1.8vh rgba(0,0,0,.5);
     text-shadow:0 .08em .4em rgba(0,0,0,.95);}
   .cap::after{content:"";position:absolute;left:50%;top:-0.6em;transform:translateX(-50%);border:0.6em solid transparent;border-bottom-color:rgba(10,14,24,.74);border-top:0;}
@@ -418,7 +418,7 @@ const N={on:true,active:false,voice:null,pending:null,guard:null,poll:null,cur:n
 const VO=[];for(let _i=0;_i<8;_i++){const a=new Audio();a.preload='none';VO.push(a);} // Dori 已停用，不預載音檔（保留陣列避免其他引用出錯）
 // 統一背景樂：從其中一段影片抽出的音樂（audio/bgm.mp3），全片循環播放、旁白時壓低、可靜音
 const BGM=new Audio('audio/bgm.mp3');BGM.loop=true;BGM.preload='auto';const bgmBase=0.55;let bgmFadeT=null;
-let musicOn=false; // 依使用者要求先把音樂拿掉；日後要換統一配樂改回 true（或換 bgm.mp3）即可
+let musicOn=true; // 統一背景樂＝audio/bgm.mp3（目前用 v2 的音樂；換片段＝重壓 bgm.mp3、換整首開關即可）
 try{BGM.volume=0;}catch(e){}
 BGM.addEventListener('error',()=>{BGM.dataset.bad='1';});
 function bgmGo(reset){if(!musicOn||BGM.dataset.bad)return;if(bgmFadeT){clearInterval(bgmFadeT);bgmFadeT=null;}try{if(reset)BGM.currentTime=0;const p=BGM.play();if(p&&p.catch)p.catch(()=>{});}catch(e){}duck();}
