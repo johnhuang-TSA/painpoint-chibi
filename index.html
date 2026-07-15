@@ -26,60 +26,61 @@
   #s6 .vfallback{background:linear-gradient(180deg,#9cd0e8,#f4f0d2 58%,#84ab60);}
 
   .overlay{position:absolute;inset:0;z-index:5;}
-  .lower{position:absolute;left:6%;right:6%;bottom:15%;text-align:center;line-height:1.5;z-index:6;}
-  .center{position:absolute;left:7%;right:7%;top:50%;transform:translateY(-50%);text-align:center;line-height:1.55;z-index:6;}
-  .big{font-weight:800;letter-spacing:.06em;font-size:min(5vw,5.6vh);}
-  .mid{font-weight:700;letter-spacing:.05em;font-size:min(3.3vw,3.9vh);}
-  .cap{display:inline-block;padding:.35em 1em;border-radius:.6em;background:rgba(8,10,18,.62);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
-    text-shadow:0 .1em .7em rgba(0,0,0,.9);}
+  .lower{position:absolute;left:6%;right:6%;bottom:8%;text-align:center;line-height:1.4;z-index:6;}
+  .center{position:absolute;left:7%;right:7%;bottom:8%;text-align:center;line-height:1.45;z-index:6;} /* 原本置中會擋角色，改貼下方 */
+  .big{font-weight:800;letter-spacing:.04em;font-size:min(3.8vw,4.4vh);}
+  .mid{font-weight:700;letter-spacing:.03em;font-size:min(2.8vw,3.3vh);}
+  .cap{display:inline-block;padding:.2em .8em;border-radius:.5em;background:rgba(8,10,18,.4);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    text-shadow:0 .08em .5em rgba(0,0,0,.98),0 0 .22em rgba(0,0,0,.85);}
   .cur{display:inline-block;width:.08em;height:1em;background:currentColor;margin-left:.06em;vertical-align:-0.12em;animation:blink 1s steps(1) infinite;}
   @keyframes blink{50%{opacity:0;}}
   #clock{position:absolute;right:6%;top:11%;font-family:"Consolas",monospace;z-index:7;
     font-size:min(3vw,3.4vh);letter-spacing:.1em;color:#eef4ff;opacity:0;text-shadow:0 0 .6em rgba(0,0,20,.95);will-change:opacity;}
 
   /* 場景2：部門名條（唸到誰誰亮） */
-  #deptStrip{position:absolute;left:0;right:0;top:13.5%;display:flex;justify-content:center;gap:min(2vw,2.4vh);z-index:6;}
-  .dchip{font-weight:800;font-size:min(2.5vw,3vh);letter-spacing:.1em;padding:.3em .8em;border-radius:.5em;
-    color:#fff;background:rgba(8,10,18,.78);border:2px solid var(--c);opacity:.55;transition:opacity .5s,box-shadow .5s,background .5s;
+  #deptStrip{position:absolute;left:0;right:0;top:6%;display:flex;justify-content:center;gap:min(1.4vw,1.8vh);z-index:6;}
+  .dchip{font-weight:700;font-size:min(1.8vw,2.2vh);letter-spacing:.08em;padding:.22em .6em;border-radius:.4em;
+    color:#fff;background:rgba(8,10,18,.7);border:1.5px solid var(--c);opacity:.5;transition:opacity .5s,box-shadow .5s,background .5s;
     text-shadow:0 .08em .5em rgba(0,0,0,.8);}
   .dchip.lit{opacity:1;background:var(--c);color:#0a1018;box-shadow:0 0 2.2vh var(--c);}
 
   /* 場景3：表名紙卡（唸到才浮現） */
-  #tableWrap{position:absolute;inset:0;z-index:6;}
-  .tchip{position:absolute;opacity:0;transition:opacity .5s,transform .5s;transform:translateY(1.4vh) scale(.9);
-    font-weight:800;font-size:min(2.5vw,3vh);letter-spacing:.08em;color:#3a2b12;
-    background:linear-gradient(180deg,#fbf3df,#ecdcb6);padding:.3em .8em;border-radius:.4em;border:1px solid #b99c6a;
-    box-shadow:0 .5vh 1.6vh rgba(0,0,0,.5);}
-  .tchip.on{opacity:1;transform:translateY(0) scale(1);}
+  #tableWrap{position:absolute;left:6%;right:6%;bottom:17%;z-index:6;display:flex;flex-wrap:wrap;justify-content:center;gap:.7vh 1vh;} /* 改成底部一列小卡，不再散佈中央擋角色 */
+  .tchip{opacity:0;transition:opacity .4s,transform .4s;transform:translateY(1vh);
+    font-weight:700;font-size:min(1.9vw,2.3vh);letter-spacing:.06em;color:#3a2b12;
+    background:linear-gradient(180deg,#fbf3df,#ecdcb6);padding:.2em .6em;border-radius:.35em;border:1px solid #b99c6a;
+    box-shadow:0 .4vh 1.2vh rgba(0,0,0,.45);}
+  .tchip.on{opacity:.94;transform:translateY(0);}
 
   /* 場景A：ERP vs 新得利 實際數字對照 */
-  #numpanel{position:absolute;left:0;right:0;top:26%;z-index:6;display:flex;justify-content:center;align-items:center;gap:min(2.4vw,3vh);opacity:0;transition:opacity .6s;}
-  .numcol{background:rgba(8,10,18,.74);border:2px solid;border-radius:.6em;padding:.45em 1em;text-align:center;min-width:min(19vw,23vh);box-shadow:0 .6vh 2vh rgba(0,0,0,.5);}
+  #numpanel{position:absolute;left:0;right:0;top:6%;z-index:6;display:flex;justify-content:center;align-items:center;gap:min(1.4vw,1.8vh);opacity:0;transition:opacity .6s;} /* 縮小移到頂部小計分板，中央讓給角色 */
+  .numcol{background:rgba(8,10,18,.62);border:1.5px solid;border-radius:.45em;padding:.25em .7em;text-align:center;min-width:min(12vw,15vh);box-shadow:0 .4vh 1.2vh rgba(0,0,0,.45);}
   .numcol.erp{border-color:#5aa0ff;} .numcol.xdl{border-color:#4ad08a;}
-  .numcol .nk{font-size:min(2vw,2.4vh);letter-spacing:.14em;opacity:.9;}
-  .numcol .nv{font-size:min(5.2vw,6.2vh);font-weight:800;line-height:1.05;}
+  .numcol .nk{font-size:min(1.5vw,1.9vh);letter-spacing:.12em;opacity:.9;}
+  .numcol .nv{font-size:min(3.2vw,3.9vh);font-weight:800;line-height:1.05;}
   .numcol.erp .nv{color:#a8ccff;} .numcol.xdl .nv{color:#a8f0c6;}
-  #numdiff{background:rgba(255,120,60,.16);border:1px solid #ff8a4a;border-radius:.5em;padding:.4em .9em;font-weight:800;font-size:min(2.3vw,2.8vh);color:#ffc79c;text-align:center;line-height:1.35;}
+  #numdiff{background:rgba(255,120,60,.16);border:1px solid #ff8a4a;border-radius:.4em;padding:.28em .7em;font-weight:800;font-size:min(1.6vw,2vh);color:#ffc79c;text-align:center;line-height:1.3;}
   /* 場景6：有憑據的答案卡＋CTA */
-  #anscard{max-width:80%;margin:0 auto;background:rgba(8,12,20,.66);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(180,210,255,.18);border-radius:1em;padding:1.1em 1.5em;text-align:center;}
-  #ask6{font-size:min(2.4vw,2.9vh);color:#bcd2ee;margin-bottom:.6vh;}
-  #ansHead{font-weight:800;font-size:min(4.6vw,5.2vh);color:#fff2d8;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
-  #evid{margin-top:1vh;opacity:0;transition:opacity .6s;text-align:left;}
-  #evid .erow{display:flex;justify-content:space-between;gap:1.2em;font-size:min(2.4vw,2.9vh);padding:.2em 0;border-bottom:1px solid rgba(255,255,255,.08);}
+  #anscard{max-width:min(62%,64vh);margin:0 auto;background:rgba(8,12,20,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(180,210,255,.18);border-radius:.8em;padding:.7em 1em;text-align:center;}
+  #ask6{font-size:min(1.8vw,2.2vh);color:#bcd2ee;margin-bottom:.4vh;}
+  #ansHead{font-weight:800;font-size:min(3.4vw,4vh);color:#fff2d8;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
+  #evid{margin-top:.7vh;opacity:0;transition:opacity .6s;text-align:left;}
+  #evid .erow{display:flex;justify-content:space-between;gap:1.2em;font-size:min(1.9vw,2.3vh);padding:.14em 0;border-bottom:1px solid rgba(255,255,255,.08);}
   #evid .ek{color:#bcd2ee;} #evid .ev{font-weight:700;color:#fff;}
-  #evid .esrc{margin-top:.7vh;font-size:min(1.7vw,2vh);color:#9fb2cc;}
-  #slogan{margin-top:1.4vh;font-weight:800;font-size:min(3.6vw,4.2vh);letter-spacing:.05em;color:#ffcf8a;opacity:0;transition:opacity .6s;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
-  #cta{margin-top:1.6vh;opacity:0;transition:opacity .6s;}
-  #cta .ctabtn{display:inline-block;background:linear-gradient(180deg,#ffd98a,#e8a24a);color:#2a1a06;font-weight:800;font-size:min(2.6vw,3.1vh);letter-spacing:.04em;padding:.5em 1.2em;border-radius:.6em;box-shadow:0 .5vh 2vh rgba(232,140,40,.4);}
+  #evid .esrc{margin-top:.5vh;font-size:min(1.4vw,1.7vh);color:#9fb2cc;}
+  #slogan{margin-top:1vh;font-weight:800;font-size:min(2.8vw,3.3vh);letter-spacing:.04em;color:#ffcf8a;opacity:0;transition:opacity .6s;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
+  #cta{margin-top:1.1vh;opacity:0;transition:opacity .6s;}
+  #cta .ctabtn{display:inline-block;background:linear-gradient(180deg,#ffd98a,#e8a24a);color:#2a1a06;font-weight:800;font-size:min(2vw,2.5vh);letter-spacing:.04em;padding:.4em 1em;border-radius:.5em;box-shadow:0 .5vh 2vh rgba(232,140,40,.4);}
   #grain{position:absolute;inset:-50%;pointer-events:none;opacity:.07;z-index:9;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
   #vignette{position:absolute;inset:0;pointer-events:none;z-index:9;background:radial-gradient(125% 105% at 50% 50%,rgba(0,0,0,0) 58%,rgba(0,0,0,.5) 100%);}
   .bar-cine{position:absolute;left:0;right:0;height:0;background:#000;z-index:20;pointer-events:none;transition:height .25s cubic-bezier(.7,0,.3,1);}
   #barTop{top:0;} #barBot{bottom:0;}
-  body.cine #barTop,body.cine #barBot{height:9%;}
+  body.cine #barTop,body.cine #barBot{height:0;} /* 去黑邊，讓動畫露出滿版 */
 
   #bottomUI{position:absolute;left:0;right:0;bottom:0;z-index:25;padding:7px 16px 9px;background:linear-gradient(0deg,rgba(8,8,14,.95) 58%,rgba(8,8,14,0));opacity:0;transition:opacity .5s;}
   #bottomUI.show{opacity:1;}
+  #bottomUI.show.hideui{opacity:0;pointer-events:none;} /* 播放中無操作自動隱藏，讓動畫不被控制列干擾 */
   #tlPhases{display:flex;gap:4px;max-width:1000px;margin:0 auto;}
   .ph{flex:1;cursor:pointer;text-align:center;padding:4px 2px 8px;border-radius:5px;position:relative;transition:background .3s;}
   .ph:hover{background:rgba(150,190,240,.12);}
@@ -255,8 +256,7 @@ let qTarget=-1;
 const LBL=['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'];
 const LBL_AT=[0.7,1.5,2.3,3.1,3.9,4.7];
 const lblShown=[0,0,0,0,0,0];
-const TPOS=[[10,20],[34,13],[60,19],[16,52],[44,44],[70,52]]; // [left%,top%]
-const lblEls=[];LBL.forEach((txt,k)=>{const d=document.createElement('div');d.className='tchip';d.textContent=txt;d.style.left=TPOS[k][0]+'%';d.style.top=TPOS[k][1]+'%';$('tableWrap').appendChild(d);lblEls.push(d);});
+const lblEls=[];LBL.forEach((txt,k)=>{const d=document.createElement('div');d.className='tchip';d.textContent=txt;$('tableWrap').appendChild(d);lblEls.push(d);}); // 底部 flex 一列，不再絕對定位
 
 function typeInto(el,text,startLs,cps,ls,showCursor){
   const n=Math.floor(clamp((ls-startLs)*cps,0,text.length));
@@ -516,7 +516,10 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 
-function begin(){started=true;playing=true;t=0;lastTs=0;curScene=0;$('start').classList.add('hide');$('bottomUI').classList.add('show');document.body.classList.add('cine');initAudio();unlockAudio();playVid(0);musicScene(0);speakNow(0);} // 不再自動強制全螢幕（改由使用者自行決定；全螢幕鍵可另加）
+let uiT;
+function pokeUI(){const b=$('bottomUI');if(!b)return;b.classList.remove('hideui');clearTimeout(uiT);if(started&&playing)uiT=setTimeout(()=>{if(started&&playing)b.classList.add('hideui');},2600);} // 播放中無操作 2.6s 後自動隱藏控制列
+addEventListener('pointermove',pokeUI);addEventListener('keydown',pokeUI);
+function begin(){started=true;playing=true;t=0;lastTs=0;curScene=0;$('start').classList.add('hide');$('bottomUI').classList.add('show');document.body.classList.add('cine');initAudio();unlockAudio();playVid(0);musicScene(0);speakNow(0);pokeUI();} // 不再自動強制全螢幕
 function unlockAudio(){try{if(M.ctx&&M.ctx.state==='suspended')M.ctx.resume();}catch(e){}}
 function nextScene(){if(!started)return;for(let i=1;i<B.length;i++){if(B[i]>t+0.05){t=B[i];if(t>=TOTAL){t=TOTAL;playing=false;}return;}}t=TOTAL;playing=false;}
 function replay(){if(!started){begin();return;}t=0;playing=true;lastTs=0;curScene=-1;stopNarr();}
