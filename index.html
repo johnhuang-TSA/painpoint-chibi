@@ -213,11 +213,11 @@
         <div id="ask6"></div>
         <div id="ansHead"></div>
         <div id="evid">
-          <div class="erow"><span class="ek" id="ek0">可用庫存</span><span class="ev" id="ev0">320 pcs</span></div>
-          <div class="erow"><span class="ek" id="ek1">預估需求</span><span class="ev" id="ev1">210 pcs</span></div>
+          <div class="erow"><span class="ek" id="ek0">可用庫存(已驗收)</span><span class="ev" id="ev0">284 pcs</span></div>
+          <div class="erow"><span class="ek" id="ek1">至 8/12 需求</span><span class="ev" id="ev1">210 pcs</span></div>
           <div class="erow"><span class="ek" id="ek2">下一批到貨</span><span class="ev" id="ev2">8/12</span></div>
-          <div class="erow"><span class="ek" id="ek3">兩套系統差異</span><span class="ev" id="ev3">18 pcs・待驗收批次</span></div>
-          <div class="esrc" id="esrc">資料來源：ERP＋新得利｜更新 09:14｜數據為示意</div>
+          <div class="erow"><span class="ek" id="ek3">差 18 pcs 原因</span><span class="ev" id="ev3">待驗收批次</span></div>
+          <div class="esrc" id="esrc">資料來源：ERP＋新得利倉庫系統｜更新 09:14</div>
         </div>
         <div id="slogan"></div>
       </div>
@@ -306,7 +306,7 @@ const CHIP_T=[
  {t0:0.6,t1:3.3,tx:3.3,x0:58,x1:32,top:16},  // 倉管（貨架）
  {t0:3.5,t1:6.3,tx:6.3,x0:70,x1:36,top:17},  // 生管（規劃板）
  {t0:6.5,t1:8.7,tx:8.7,x0:56,x1:26,top:26},  // 採購（蓋章桌）
- {t0:8.9,t1:99,tx:10,x0:72,x1:55,top:20}];   // 品管（放大鏡；定格後留在畫面）
+ {t0:8.9,t1:9.95,tx:10,x0:72,x1:58,top:20}];  // 品管（放大鏡；x收在品管員頭上，影片一定格就淡出，避免誤讀成在標主角）
 const BULB_T=[[2.5,3.45],[5.45,6.35],[7.85,8.72],[9.2,9.95]]; // 每站問完，哲人頭上亮 💡
 const erpCol=document.querySelector('#numpanel .erp'),xdlCol=document.querySelector('#numpanel .xdl'),diffEl=$('numdiff');
 
@@ -423,9 +423,10 @@ const LANG={
 LANG.dori=Object.assign({},LANG.zh,{name:'Dori 真人配音'});
 // 場景6「有憑據的答案卡＋CTA」與新標語 的多語文字
 const EV={
- zh:{head:'不會，下週不會缺貨。',rows:[['可用庫存','320 pcs'],['預估需求','210 pcs'],['下一批到貨','8/12'],['兩套系統差異','18 pcs・待驗收']],src:'資料來源：ERP＋新得利｜更新 09:14｜數據為示意',slogan:'答案快，更要答得有據。',cta:'▸ 選 3 個高頻問題，做兩週 PoC'},
- en:{head:"No — you won't run out next week.",rows:[['On-hand','320'],['Forecast','210'],['Next arrival','Aug 12'],['System gap','18 · pending QC']],src:'Source: ERP + 2nd system · updated 09:14 · illustrative',slogan:'Fast answers — with the receipts.',cta:'▸ Pick 3 top questions — 2-week PoC'},
- ja:{head:'いいえ、来週は欠品しません。',rows:[['在庫','320 個'],['予測需要','210 個'],['次回入荷','8/12'],['システム差','18 個・検収待ち']],src:'出典：ERP＋新得利｜更新 09:14｜数値は例示',slogan:'速く、そして根拠のある答えを。',cta:'▸ 高頻度の3問で2週間PoC'},
+ // 數字閉環：284=ERP302 剔除待驗收18 的可用量(ATP)，與第4段 302/284/差18 前後呼應；「差18」明確標示是兩套系統差、非 320-210
+ zh:{head:'不會，下週不會缺貨。',rows:[['可用庫存(已驗收)','284 pcs'],['至 8/12 需求','210 pcs'],['下一批到貨','8/12'],['差 18 pcs 原因','待驗收批次']],src:'資料來源：ERP＋新得利倉庫系統｜更新 09:14',slogan:'答案快，更要答得有據。',cta:'▸ 選 3 個高頻問題，做兩週 PoC'},
+ en:{head:"No — you won't run out next week.",rows:[['On-hand (inspected)','284'],['Demand by Aug 12','210'],['Next arrival','Aug 12'],['18-pc gap','pending QC']],src:'Source: ERP + warehouse system · updated 09:14',slogan:'Fast answers — with the receipts.',cta:'▸ Pick 3 top questions — 2-week PoC'},
+ ja:{head:'いいえ、来週は欠品しません。',rows:[['在庫(検収済)','284 個'],['8/12までの需要','210 個'],['次回入荷','8/12'],['差18個の原因','検収待ち']],src:'出典：ERP＋新得利倉庫システム｜更新 09:14',slogan:'速く、そして根拠のある答えを。',cta:'▸ 高頻度の3問で2週間PoC'},
  dori:null
 };
 function applyEvid(code){const e=EV[code]||EV.zh; // dori→null→用 zh
