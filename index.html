@@ -533,8 +533,9 @@ function render(){
   // 第7段(i===6)加強版：旁白還在唸時，鏡頭由遠明顯推近、聚焦主角與 AI（推到~1.35x，指數曲線永不完全停）
   {const cv=VIDS[i];if(cv&&!cv.dataset.bad){cv.style.opacity=1;
     if(cv.ended){if(!cv._kb)cv._kb=segElapsed;const tE=segElapsed-cv._kb;
-      const A=(i===6)?0.42:0.12,tau=(i===6)?6:7;
+      const A=(i===6)?0.42:(i===1?0.36:0.12),tau=(i===6||i===1)?6:7; // 第2段也加強：定格後推向哲人與品管站
       if(i===6)cv.style.transformOrigin='56% 42%'; // 聚焦點=哲人與機器人中間
+      else if(i===1)cv.style.transformOrigin='52% 38%'; // 聚焦點=哲人與品管員之間
       const z=1+A*(1-Math.exp(-tE/tau));cv.style.transform='scale('+z.toFixed(4)+')';}
     else{cv._kb=0;if(cv.style.transform){cv.style.transform='';cv.style.transformOrigin='';}}}}
   if(N.on&&lang==='dori'&&i===1&&VO[1]&&!VO[1].paused){const d=VO[1].duration||0,ct=VO[1].currentTime;
