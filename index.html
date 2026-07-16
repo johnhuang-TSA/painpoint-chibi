@@ -288,7 +288,7 @@ addEventListener('resize',layout);addEventListener('load',layout);
 // ---------- 影片：每幕一段，載入失敗(缺 v5~v8)則自動退回底色背景 ----------
 const VIDS=[...document.querySelectorAll('.vid')]; // index 0..7 對應 v1..v8、對應場景 0..7
 VIDS.forEach((v,i)=>{v.loop=false;v.addEventListener('error',()=>{v.dataset.bad='1';v.style.display='none';});}); // 不循環：播完停在最後一格（定格）等旁白，避免「播完一輪又重來」的跳接
-function ensureVid(i){const v=VIDS[i];if(v&&!v.getAttribute('src')){v.setAttribute('src','videos/v'+v.getAttribute('data-v')+'.mp4?nowm=1');}} // 分段載入：用到才設 src；?nowm=1 讓瀏覽器放棄舊快取、抓去浮水印新檔
+function ensureVid(i){const v=VIDS[i];if(v&&!v.getAttribute('src')){v.setAttribute('src','videos/v'+v.getAttribute('data-v')+'.mp4?nowm=2');}} // 分段載入：用到才設 src；?nowm=2 讓瀏覽器放棄舊快取、抓星形遮罩去浮水印新檔
 ensureVid(0);ensureVid(1);
 function sceneFillRate(i){const vd=(VIDS[i]&&VIDS[i].duration)?VIDS[i].duration:10;const sd=N.on?estDur(i):DUR[i];return clamp(vd/sd,0.85,(i===5?1.45:1));} // 近原速播放(0.85~1x，動作才順)；播完定格最後一格等旁白。第六段旁白短→允許加速到綠箱亮相跟旁白同步收
 function playVid(i){ensureVid(i);ensureVid(i+1);VIDS.forEach((v,k)=>{if(k===i){if(!v.dataset.bad){try{v.muted=true;v.currentTime=0;v.playbackRate=sceneFillRate(i)*speed;if(playing){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else{v.pause();}}catch(e){}}}else{try{v.pause();}catch(e){}}});}
