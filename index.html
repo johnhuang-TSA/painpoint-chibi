@@ -48,7 +48,7 @@
   .charmark::after{content:"";position:absolute;left:50%;bottom:-0.48em;transform:translateX(-50%);border:0.48em solid transparent;border-top-color:#dbe8ff;border-bottom:0;}
   .charmark.ai{background:linear-gradient(180deg,#dffff6,#79e6cf);border-color:#eafffb;color:#043a2f;}
   .charmark.ai::after{border-top-color:#79e6cf;}
-  #mark1{top:15%;right:9%;} /* 場景1：同事在右 */
+  #mark1{top:11%;right:20%;} /* 場景1：同事在右（頭頂約x74%/y20%，標記緊貼頭上） */
   #mark7{top:7%;right:13%;} /* 場景7：AI 機器人在右 */
 
   /* 場景2：部門標記跟著鏡頭裡的人物頭頂移動（位置由 JS 依影片時間驅動），哲人每站問完亮燈泡 */
@@ -74,7 +74,7 @@
   /* 場景3：表名紙卡（唸到才浮現） */
   #tableWrap{position:absolute;left:6%;right:6%;bottom:17%;z-index:6;display:flex;flex-wrap:wrap;justify-content:center;gap:.7vh 1vh;} /* 改成底部一列小卡，不再散佈中央擋角色 */
   .tchip{opacity:0;transition:opacity .4s,transform .4s;transform:translateY(1vh);
-    font-weight:700;font-size:min(1.9vw,2.3vh);letter-spacing:.06em;color:#3a2b12;
+    font-weight:700;font-size:min(2.7vw,3.2vh);letter-spacing:.06em;color:#3a2b12;
     background:linear-gradient(180deg,#fbf3df,#ecdcb6);padding:.2em .6em;border-radius:.35em;border:1px solid #b99c6a;
     box-shadow:0 .4vh 1.2vh rgba(0,0,0,.45);}
   .tchip.on{opacity:.94;transform:translateY(0);}
@@ -368,13 +368,13 @@ const LANG={
  zh:{name:'中文',code:'zh-TW',
   narr:[
    '同事順口一問：山苦瓜，下週會不會缺貨？',
-   '一句話丟進供應鏈，散成四塊：庫存問倉管、原料問生管、到貨問採購、檢驗問品管——答案，得一站一站問。',
+   '先到倉管，問庫存還有多少；再走到生管，問原料夠不夠。接著找採購，問下一批到貨；最後到品管，問檢驗報告好了沒。一句話，得跑四站。',
    '想自己查？光是攤開庫存表、預估表、交期表、採購單、驗收紀錄、品檢記錄——六張表一張一張比對，一個下午就沒了。',
    '更麻煩的是，同一個山苦瓜，ERP 顯示三百零二件，新得利顯示二百八十四件，差了十八件。到底該信哪一個？',
    '天黑了，忙了一整天，我最放不下的還是——這個答案，真的對嗎？',
    '而這，只是這週幾百個品項裡的其中一個。',
    '那如果，有一位真正懂供應鏈的 AI 同事呢？同一句問題，它同時查完四個部門、六張表，還比對了 ERP 跟新得利——幾秒鐘，就把答案湊齊。',
-   '同事又來問。這次，AI 幾秒就給出答案——不會缺貨，附上來源。他放心，我安心，共創雙贏。'],
+   '同事又來問。這次，AI 幾秒就給出答案——不會缺貨。他放心，我安心，共創雙贏。'],
   q:'山苦瓜，下週會不會缺貨？',ans:'「不會。我幫你看過了。」',slogan:'隨問，隨答。',
   depts:['倉管','生管','採購','品管'],tables:['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'],
   s2:'一個問題，被切成<b style="color:#ff9a6a">四塊</b>。',
@@ -386,13 +386,13 @@ const LANG={
  en:{name:'English',code:'en-US',
   narr:[
    "A colleague casually asks: bitter gourd — will we run out next week?",
-   "One question splits into four: stock? ask Warehouse. Materials? Planning. Arrivals? Purchasing. Inspection? QC. The answer, I chase station by station.",
+   "First stop, Warehouse — how much stock is left? Then Planning — enough raw material? Next, Purchasing — when's the next batch? And finally QC — is the report ready? One question, four stops.",
    "Sure, I could look it up myself — but just digging through the data means opening the stock sheet, the forecast, the lead-time sheet, purchase orders, receiving records, QC logs — six sheets, cross-checked one by one, a whole afternoon gone.",
    "Worse still — for the same bitter gourd, ERP shows 302 pcs but the second system shows 284. An 18-piece gap. Which one do I trust?",
    "Night falls. A whole day's work. And what I still can't shake is — is this answer even right?",
    "And bitter gourd is just one of the hundreds of items I'm watching this week.",
    "But what if you had an AI teammate who truly understood supply chain? One question — and it checks all four departments, all six sheets, and reconciles ERP against the second system, all at once. In seconds, it has the whole answer.",
-   "The colleague asks again. This time, the AI answers in seconds — no shortage, source attached. He's relieved; so am I. A win-win for everyone."],
+   "The colleague asks again. This time, the AI answers in seconds — no shortage. He's relieved; so am I. A win-win for everyone."],
   q:'Bitter gourd — will we run out next week?',ans:'“No. I’ve already checked for you.”',slogan:'Ask anytime. Answered instantly.',
   depts:['Warehouse','Planning','Purchasing','QC'],tables:['Stock','Forecast','Lead-time','PO','Receiving','QC log'],
   s2:'One question, <b style="color:#ff9a6a">split four ways</b>.',
@@ -404,13 +404,13 @@ const LANG={
  ja:{name:'日本語',code:'ja-JP',
   narr:[
    '同僚が軽く一言。ゴーヤ、来週は欠品する？',
-   'ひとつの質問が、四つに割れる。在庫は倉庫に、原料は生産管理に、入荷は購買に、検査は品質管理に——答えは、一人ずつ聞いて回るしかない。',
+   'まず倉庫で、在庫はいくつか聞く。次に生産管理で、原料は足りるか。続いて購買で、次のロットはいつか。最後に品質管理で、検査報告はまだかと——ひとつの質問で、四か所も回る。',
    'もちろん自分で調べてもいい。でも資料をめくるだけでも、在庫表、予測表、納期表、発注書、検収記録、品質検査記録——六枚の表を広げて、一枚ずつ照合して、午後がまるごと消える。',
    '厄介なのは、同じゴーヤなのに、ERPは302個、新得利は284個——18個もずれていること。どちらを信じればいい？',
    '日が暮れ、丸一日働いた。それでも引っかかるのは——この答え、本当に正しい？',
    'そしてゴーヤは、今週見るべき数百の品目のひとつにすぎない。',
    'もし、サプライチェーンを本当に理解したAIの同僚がいたら？ひとつの質問で、四つの部門と六枚の表を同時に確認し、ERPと新得利まで突き合わせる——数秒で、答えをすべて揃えてくれる。',
-   '同僚がまた聞きに来た。今度はAIが数秒で答える——欠品しません、出典つき。彼も安心、私も安心、みんなにウィンウィンだ。'],
+   '同僚がまた聞きに来た。今度はAIが数秒で答える——欠品しません。彼も安心、私も安心、みんなにウィンウィンだ。'],
   q:'ゴーヤ、来週は欠品する？',ans:'「いいえ。確認しておきました。」',slogan:'聞けば、すぐ答える。',
   depts:['倉庫','生産','購買','品質'],tables:['在庫表','予測表','納期表','発注書','検収記録','品質検査'],
   s2:'ひとつの質問が、<b style="color:#ff9a6a">四つに分かれる</b>。',
