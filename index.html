@@ -548,9 +548,9 @@ function render(){
   {$('mark7').classList.toggle('show',i===6&&!!VIDS[6]&&VIDS[6].currentTime>=2.1);}
   // 場景2：哲人逐站詢問——標記跟著鏡頭裡的人物頭頂移動；每站問完哲人頭上亮 💡 再去下一站（依影片時間驅動，名字必對到人）
   {const vt=(VIDS[1]&&VIDS[1].currentTime)||0;
-   deptEls.forEach((el,k)=>{const c=CHIP_T[k];const on=(i===1&&vt>=c.t0&&vt<=c.t1);
-     if(on){const p=clamp((vt-c.t0)/(c.tx-c.t0),0,1);const x=c.x0+(c.x1-c.x0)*p;
-       el.style.left=x.toFixed(1)+'%';el.style.top=c.top+'%';} // 遮擋改由 #deptStrip 的 mask 處理（平滑切邊，不閃爍）
+   deptEls.forEach((el,k)=>{const c=CHIP_T[k];const p=clamp((vt-c.t0)/(c.tx-c.t0),0,1);const x=c.x0+(c.x1-c.x0)*p;
+     const on=(i===1&&vt>=c.t0&&vt<=c.t1&&x>49.2); // 主角碰到標記(滑到他右緣49%)→標記就此消失，不再從另一側出現
+     if(on){el.style.left=x.toFixed(1)+'%';el.style.top=c.top+'%';}
      el.classList.toggle('lit',on);});
    $('bulb').classList.toggle('on',i===1&&BULB_T.some(w=>vt>=w[0]&&vt<=w[1]));
    $('s2line').parentElement.style.opacity=smooth((ls-1.0)/1.0).toFixed(3);}
