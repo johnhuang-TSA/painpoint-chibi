@@ -67,9 +67,13 @@
     border-radius:50%;background:rgba(250,247,238,.92);border:.4vh solid #6b5b3e;box-shadow:0 .6vh 2vh rgba(0,0,0,.5);pointer-events:none;}
   #fastclock::after{content:"";position:absolute;left:50%;top:50%;width:9%;height:9%;background:#333;border-radius:50%;transform:translate(-50%,-50%);}
   .fc-m,.fc-h{position:absolute;left:48.5%;bottom:50%;transform-origin:bottom center;background:#333;border-radius:1vh;}
-  .fc-m{width:3%;height:42%;animation:fcspin 1.1s linear infinite;}
-  .fc-h{width:5%;height:28%;background:#555;animation:fcspin 13.2s linear infinite;}
+  .fc-m{width:3%;height:42%;}
+  .fc-h{width:5%;height:28%;background:#555;transform:rotate(30deg);}
+  /* 語意對齊「一個下午」：分針轉5圈=5小時、時針下午1點→6點，5.5秒走完後「停」在傍晚6點 */
+  #fastclock.run .fc-m{animation:fcspin 1.1s linear 5;animation-fill-mode:forwards;}
+  #fastclock.run .fc-h{animation:fchour 5.5s linear 1 forwards;}
   @keyframes fcspin{to{transform:rotate(360deg);}}
+  @keyframes fchour{from{transform:rotate(30deg);}to{transform:rotate(180deg);}}
 
   /* 場景3：表名紙卡（唸到才浮現） */
   #tableWrap{position:absolute;left:6%;right:6%;bottom:17%;z-index:6;display:flex;flex-wrap:wrap;justify-content:center;gap:.7vh 1vh;} /* 改成底部一列小卡，不再散佈中央擋角色 */
@@ -534,9 +538,10 @@ function render(){
   // 第7段(i===6)加強版：旁白還在唸時，鏡頭由遠明顯推近、聚焦主角與 AI（推到~1.35x，指數曲線永不完全停）
   {const cv=VIDS[i];if(cv&&!cv.dataset.bad){cv.style.opacity=1;
     if(cv.ended){if(!cv._kb)cv._kb=segElapsed;const tE=segElapsed-cv._kb;
-      const A=(i===6)?0.42:(i===1?0.36:0.12),tau=(i===6||i===1)?6:7; // 第2段也加強：定格後推向哲人與品管站
+      const A=(i===6)?0.42:(i===1?0.36:(i===2?0.32:0.12)),tau=(i===6||i===1||i===2)?6:7; // 第2/3/7段加強推軌
       if(i===6)cv.style.transformOrigin='56% 42%'; // 聚焦點=哲人與機器人中間
       else if(i===1)cv.style.transformOrigin='52% 38%'; // 聚焦點=哲人與品管員之間
+      else if(i===2)cv.style.transformOrigin='76% 20%'; // 第3段聚焦「時間」：推向影片右上牆鐘區
       const z=1+A*(1-Math.exp(-tE/tau));cv.style.transform='scale('+z.toFixed(4)+')';}
     else{cv._kb=0;if(cv.style.transform){cv.style.transform='';cv.style.transformOrigin='';}}}}
   if(N.on&&lang==='dori'&&i===1&&VO[1]&&!VO[1].paused){const d=VO[1].duration||0,ct=VO[1].currentTime;
@@ -567,7 +572,10 @@ function render(){
   // 場景3：表名紙卡依序浮現＋結尾時鐘快轉（呼應「一個下午就沒了」）
   {lblEls.forEach((el,k)=>{el.classList.toggle('on',N.on?!!lblShown[k]:smooth((ls-LBL_AT[k])/0.7)>0.5);});
    $('s3line').parentElement.style.opacity=(N.on?(lblShown.every(Boolean)?1:0):smooth((ls-5.0)/1.0)).toFixed(3);
-   $('fastclock').style.opacity=(i===2)?smooth((segElapsed-0.62*estDur(2))/0.8).toFixed(3):0;}
+   {const fc=$('fastclock'),on=(i===2)&&segElapsed>=0.62*estDur(2);
+    fc.style.opacity=on?smooth((segElapsed-0.62*estDur(2))/0.8).toFixed(3):0;
+    fc.classList.toggle('run',on); // 出現才開始走「一個下午」(5.5s)，走完停在傍晚6點
+    const v3=VIDS[2];if(i===2&&v3&&v3.ended&&v3._kb){const tE=segElapsed-v3._kb;fc.style.transform='scale('+(1+0.28*(1-Math.exp(-tE/6))).toFixed(4)+')';}else fc.style.transform='';}}
   // 場景A：依旁白節奏依序亮：ERP 302(左上放大)→新得利 284(右上)→中間深色「差18」
   {$('sAline').parentElement.style.opacity=smooth((ls-1.4)/1.0).toFixed(3);
    const ed=estDur(3);
