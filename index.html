@@ -68,14 +68,10 @@
     border-radius:50%;background:rgba(250,247,238,.92);border:.4vh solid #6b5b3e;box-shadow:0 .6vh 2vh rgba(0,0,0,.5);pointer-events:none;}
   #fastclock.focus{right:50%;top:28%;transform:translate(50%,0) scale(1.9);} /* 定格後：時鐘滑到畫面中央放大——真正的「聚焦時間」 */
   #fastclock::after{content:"";position:absolute;left:50%;top:50%;width:9%;height:9%;background:#333;border-radius:50%;transform:translate(-50%,-50%);}
+  /* 指針由 JS 驅動：依旁白節奏停在三個定點 9:30→13:30→18:30（一整天），定點間 0.9s 順時針快掃 */
   .fc-m,.fc-h{position:absolute;left:48.5%;bottom:50%;transform-origin:bottom center;background:#333;border-radius:1vh;}
-  .fc-m{width:3%;height:42%;}
-  .fc-h{width:5%;height:28%;background:#555;transform:rotate(30deg);}
-  /* 「一個下午」：分針轉3圈(從容不急躁)、時針下午1點→6點，5.4秒走完後「停」在傍晚6點 */
-  #fastclock.run .fc-m{animation:fcspin 1.8s linear 3;animation-fill-mode:forwards;}
-  #fastclock.run .fc-h{animation:fchour 5.4s linear 1 forwards;}
-  @keyframes fcspin{to{transform:rotate(360deg);}}
-  @keyframes fchour{from{transform:rotate(30deg);}to{transform:rotate(180deg);}}
+  .fc-m{width:3%;height:42%;transform:rotate(180deg);}
+  .fc-h{width:5%;height:28%;background:#555;transform:rotate(285deg);}
 
   /* 場景3：表名紙卡（唸到才浮現） */
   #tableWrap{position:absolute;left:6%;right:6%;bottom:17%;z-index:6;display:flex;flex-wrap:wrap;justify-content:center;gap:.7vh 1vh;} /* 改成底部一列小卡，不再散佈中央擋角色 */
@@ -315,6 +311,7 @@ const CHIP_T=[
  {t0:8.9,t1:9.95,tx:10,x0:72,x1:58,top:20}];  // 品管（放大鏡；x收在品管員頭上，影片一定格就淡出，避免誤讀成在標主角）
 const BULB_T=[[2.5,3.45],[5.45,6.35],[7.85,8.72],[9.2,9.95]]; // 每站問完，哲人頭上亮 💡
 const erpCol=document.querySelector('#numpanel .erp'),xdlCol=document.querySelector('#numpanel .xdl'),diffEl=$('numdiff');
+const fcM=document.querySelector('#fastclock .fc-m'),fcH=document.querySelector('#fastclock .fc-h');
 
 // ---------- 場景3：表名紙卡 ----------
 const LBL=['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'];
@@ -375,7 +372,7 @@ const LANG={
   narr:[
    '山苦瓜，下週會不會缺貨？——同事順口一問，我卻沒辦法馬上回答。',
    '先到倉管，問庫存還有多少；再走到生管，問原料夠不夠。接著找採購，問下一批到貨；最後到品管，問檢驗報告好了沒。一句話，得跑四站。',
-   '想自己查？光是攤開庫存表、預估表、交期表、採購單、驗收紀錄、品檢記錄——六張表一張一張比對，一個下午就沒了。',
+   '想自己查？光是攤開庫存表、預估表、交期表、採購單、驗收紀錄、品檢記錄——六張表一張一張比對，一整天就沒了。',
    '更麻煩的是，同一個山苦瓜，ERP 顯示三百零二件，新得利顯示二百八十四件，差了十八件。到底該信哪一個？',
    '天黑了，忙了一整天，我最放不下的還是——這個答案，真的對嗎？',
    '而這，只是這週幾百個品項裡的其中一個。',
@@ -393,7 +390,7 @@ const LANG={
   narr:[
    "Bitter gourd — will we run out next week? A colleague asks in passing… and I can't answer on the spot.",
    "First stop, Warehouse — how much stock is left? Then Planning — enough raw material? Next, Purchasing — when's the next batch? And finally QC — is the report ready? One question, four stops.",
-   "Sure, I could look it up myself — but just digging through the data means opening the stock sheet, the forecast, the lead-time sheet, purchase orders, receiving records, QC logs — six sheets, cross-checked one by one, a whole afternoon gone.",
+   "Sure, I could look it up myself — but just digging through the data means opening the stock sheet, the forecast, the lead-time sheet, purchase orders, receiving records, QC logs — six sheets, cross-checked one by one, a whole day gone.",
    "Worse still — for the same bitter gourd, ERP shows 302 pcs but the second system shows 284. An 18-piece gap. Which one do I trust?",
    "Night falls. A whole day's work. And what I still can't shake is — is this answer even right?",
    "And bitter gourd is just one of the hundreds of items I'm watching this week.",
@@ -411,7 +408,7 @@ const LANG={
   narr:[
    'ゴーヤ、来週は欠品する？——同僚が軽く聞いてきた。でも私は、すぐには答えられない。',
    'まず倉庫で、在庫はいくつか聞く。次に生産管理で、原料は足りるか。続いて購買で、次のロットはいつか。最後に品質管理で、検査報告はまだかと——ひとつの質問で、四か所も回る。',
-   'もちろん自分で調べてもいい。でも資料をめくるだけでも、在庫表、予測表、納期表、発注書、検収記録、品質検査記録——六枚の表を広げて、一枚ずつ照合して、午後がまるごと消える。',
+   'もちろん自分で調べてもいい。でも資料をめくるだけでも、在庫表、予測表、納期表、発注書、検収記録、品質検査記録——六枚の表を広げて、一枚ずつ照合して、一日がまるごと消える。',
    '厄介なのは、同じゴーヤなのに、ERPは302個、新得利は284個——18個もずれていること。どちらを信じればいい？',
    '日が暮れ、丸一日働いた。それでも引っかかるのは——この答え、本当に正しい？',
    'そしてゴーヤは、今週見るべき数百の品目のひとつにすぎない。',
@@ -575,9 +572,14 @@ function render(){
   // 場景3：表名紙卡依序浮現＋結尾時鐘快轉（呼應「一個下午就沒了」）
   {lblEls.forEach((el,k)=>{el.classList.toggle('on',N.on?!!lblShown[k]:smooth((ls-LBL_AT[k])/0.7)>0.5);});
    $('s3line').parentElement.style.opacity=(N.on?(lblShown.every(Boolean)?1:0):smooth((ls-5.0)/1.0)).toFixed(3);
-   {const fc=$('fastclock'),on=(i===2)&&segElapsed>=0.62*estDur(2);
-    fc.style.opacity=on?smooth((segElapsed-0.62*estDur(2))/0.8).toFixed(3):0;
-    fc.classList.toggle('run',on); // 出現才開始走「一個下午」(5.4s)，走完停在傍晚6點
+   {const fc=$('fastclock'),T0=2.0,on=(i===2)&&segElapsed>=T0;
+    fc.style.opacity=on?smooth((segElapsed-T0)/0.8).toFixed(3):0;
+    if(on&&fcM&&fcH){const ed=estDur(2),p=segElapsed;
+      // 一整天三定點：9:30(開工)→13:30(過午,+4h)→18:30(下班,+5h)；角度累加確保順時針掃
+      const ST=[[T0,285,180],[0.45*ed,405,1620],[0.72*ed,555,3420]];
+      let hd=ST[0][1],md=ST[0][2];
+      for(let k=1;k<ST.length;k++){const e=smooth((p-ST[k][0])/0.9);hd+=(ST[k][1]-ST[k-1][1])*e;md+=(ST[k][2]-ST[k-1][2])*e;}
+      fcH.style.transform='rotate('+(hd%360).toFixed(1)+'deg)';fcM.style.transform='rotate('+(md%360).toFixed(1)+'deg)';}
     const v3=VIDS[2];fc.classList.toggle('focus',i===2&&!!v3&&v3.ended);}} // 影片定格→時鐘滑到中央放大（聚焦時間）
   // 場景A：依旁白節奏依序亮：ERP 302(左上放大)→新得利 284(右上)→中間深色「差18」
   {$('sAline').parentElement.style.opacity=smooth((ls-1.4)/1.0).toFixed(3);
