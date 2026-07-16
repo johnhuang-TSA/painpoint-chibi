@@ -530,9 +530,13 @@ function render(){
   for(let k=0;k<SCENES.length;k++)SCENES[k].style.opacity=sceneOpacity(k).toFixed(3);
   const ls=t-B[i];
   // 影片播完不再乾停：定格畫面緩慢推近（Ken Burns），旁白唸完前畫面持續有動感
+  // 第7段(i===6)加強版：旁白還在唸時，鏡頭由遠明顯推近、聚焦主角與 AI（推到~1.35x，指數曲線永不完全停）
   {const cv=VIDS[i];if(cv&&!cv.dataset.bad){cv.style.opacity=1;
-    if(cv.ended){if(!cv._kb)cv._kb=segElapsed;const z=1+0.1*Math.min(1,(segElapsed-cv._kb)/9);cv.style.transform='scale('+z.toFixed(4)+')';}
-    else{cv._kb=0;if(cv.style.transform)cv.style.transform='';}}}
+    if(cv.ended){if(!cv._kb)cv._kb=segElapsed;const tE=segElapsed-cv._kb;
+      const A=(i===6)?0.42:0.12,tau=(i===6)?6:7;
+      if(i===6)cv.style.transformOrigin='56% 42%'; // 聚焦點=哲人與機器人中間
+      const z=1+A*(1-Math.exp(-tE/tau));cv.style.transform='scale('+z.toFixed(4)+')';}
+    else{cv._kb=0;if(cv.style.transform){cv.style.transform='';cv.style.transformOrigin='';}}}}
   if(N.on&&lang==='dori'&&i===1&&VO[1]&&!VO[1].paused){const d=VO[1].duration||0,ct=VO[1].currentTime;
     if(d)for(let k=DEPTS.length-1;k>=0;k--){if(ct>=VO2FRAC[k]*d){qTarget=k;break;}}}
   if(N.on&&lang==='dori'&&i===2&&VO[2]&&!VO[2].paused){const d=VO[2].duration||0,ct=VO[2].currentTime;if(d)for(let k=0;k<LBL.length;k++)if(ct>=VO3FRAC[k]*d)lblShown[k]=1;}
