@@ -72,17 +72,18 @@
   .numcol .nv{font-size:min(3.2vw,3.9vh);font-weight:800;line-height:1.05;}
   .numcol.erp .nv{color:#a8ccff;} .numcol.xdl .nv{color:#a8f0c6;}
   #numdiff{background:rgba(255,120,60,.16);border:1px solid #ff8a4a;border-radius:.4em;padding:.28em .7em;font-weight:800;font-size:min(1.6vw,2vh);color:#ffc79c;text-align:center;line-height:1.3;}
-  /* 場景6：有憑據的答案卡＋CTA */
-  #s6 .center{left:3%;right:3%;bottom:4%;} /* 答案卡改貼底、加寬，讓中央三個角色的臉露出 */
-  #anscard{max-width:min(94%,1060px);margin:0 auto;background:rgba(8,12,20,.52);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(180,210,255,.18);border-radius:.7em;padding:.5em .9em;text-align:center;}
-  #ask6{font-size:min(1.6vw,2vh);color:#bcd2ee;margin-bottom:.2vh;}
-  #ansHead{font-weight:800;font-size:min(2.7vw,3.3vh);color:#fff2d8;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
-  #evid{margin-top:.5vh;opacity:0;transition:opacity .6s;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:.5vh .8vw;} /* 證據改橫向一排小卡，壓低高度 */
-  #evid .erow{display:flex;flex-direction:column;justify-content:center;gap:.05em;border-bottom:none;background:rgba(255,255,255,.06);border-radius:.4em;padding:.22em .7em;min-width:min(17vw,20vh);}
-  #evid .ek{color:#bcd2ee;font-size:min(1.3vw,1.6vh);} #evid .ev{font-weight:700;color:#fff;font-size:min(1.9vw,2.3vh);}
-  #evid .esrc{flex-basis:100%;margin-top:.3vh;font-size:min(1.3vw,1.6vh);color:#9fb2cc;}
-  #slogan{margin-top:1vh;font-weight:800;font-size:min(2.8vw,3.3vh);letter-spacing:.04em;color:#ffcf8a;opacity:0;transition:opacity .6s;text-shadow:0 .1em .6em rgba(0,0,0,.7);}
-  #cta{margin-top:1.1vh;opacity:0;transition:opacity .6s;}
+  /* 場景6：有憑據的答案卡＋CTA — 壓成貼底細長條，只蓋腳邊地板、不蓋人物 */
+  #s6 .center{left:2%;right:2%;bottom:1.5%;}
+  #anscard{max-width:98%;margin:0 auto;background:rgba(8,12,20,.46);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);border:1px solid rgba(180,210,255,.16);border-radius:.6em;padding:.3em .7em;text-align:center;}
+  #ask6{display:none;} /* 問句已在第1段出現過，收尾省掉以壓低卡片高度 */
+  #ansHead{font-weight:800;display:inline-block;font-size:min(2.2vw,2.7vh);color:#fff2d8;text-shadow:0 .1em .6em rgba(0,0,0,.7);vertical-align:middle;margin-right:.6em;}
+  #evid{display:inline-flex;opacity:0;transition:opacity .6s;flex-wrap:wrap;justify-content:center;align-items:center;gap:.3vh .5vw;vertical-align:middle;}
+  #evid .erow{display:inline-flex;flex-direction:column;justify-content:center;gap:0;border-bottom:none;background:rgba(255,255,255,.07);border-radius:.35em;padding:.12em .55em;}
+  #evid .ek{color:#bcd2ee;font-size:min(1.1vw,1.4vh);white-space:nowrap;} #evid .ev{font-weight:700;color:#fff;font-size:min(1.5vw,1.9vh);white-space:nowrap;}
+  #evid .esrc{flex-basis:100%;margin-top:.15vh;font-size:min(1.1vw,1.4vh);color:#9fb2cc;}
+  #slogan{display:inline-block;margin:.2vh .8em 0 0;font-weight:800;font-size:min(1.9vw,2.4vh);letter-spacing:.04em;color:#ffcf8a;opacity:0;transition:opacity .6s;text-shadow:0 .1em .6em rgba(0,0,0,.7);vertical-align:middle;}
+  #cta{display:inline-block;margin-top:.2vh;opacity:0;transition:opacity .6s;vertical-align:middle;}
+  #cta .ctabtn{font-size:min(1.6vw,2vh)!important;padding:.3em .8em!important;}
   #cta .ctabtn{display:inline-block;background:linear-gradient(180deg,#ffd98a,#e8a24a);color:#2a1a06;font-weight:800;font-size:min(2vw,2.5vh);letter-spacing:.04em;padding:.4em 1em;border-radius:.5em;box-shadow:0 .5vh 2vh rgba(232,140,40,.4);}
   #grain{position:absolute;inset:-50%;pointer-events:none;opacity:.07;z-index:9;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
