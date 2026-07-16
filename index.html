@@ -544,7 +544,7 @@ function loop(now){
     const ci=sceneAt(t);let nt=t+dt;
     const hp=B[ci+1]-FADE-0.05;
     const holdNarr=(N.on&&N.active); // 旁白還沒唸完
-    const holdVid=(!vidPassed&&segElapsed<24); // 影片還沒播完一輪（含綠箱等關鍵畫面），最多等 24s 防卡死
+    const holdVid=(ci===5&&!vidPassed&&segElapsed<12); // 只有第六段(sB/v6)等影片播到綠箱才換場；其餘段靠放慢影片避免提早播完，旁白結束就換場
     const hold=holdNarr||holdVid;
     if(hold&&ci<DUR.length-1&&nt>=hp)nt=Math.min(nt,hp);
     if(hold&&nt>=TOTAL)nt=Math.min(nt,TOTAL-0.01);
