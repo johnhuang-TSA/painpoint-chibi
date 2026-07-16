@@ -374,7 +374,7 @@ const LANG={
    '天黑了，忙了一整天，我最放不下的還是——這個答案，真的對嗎？',
    '而這，只是這週幾百個品項裡的其中一個。',
    '那如果，有一位真正懂供應鏈的 AI 同事呢？同一句問題，它同時查完四個部門、六張表，還比對了 ERP 跟新得利——幾秒鐘，就把答案湊齊。',
-   '同事又來問了：山苦瓜，下週會不會缺貨？這一次，AI 同事幾秒鐘就給出答案——不會缺：可用庫存三百二十件、預估需求二百一十件、下一批八月十二號到；差的十八件，是待驗收批次。每個數字都附來源，我一眼就能確認。他放心，我也安心——一句問話，兩邊都贏。'],
+   '同事又來問。這一次，AI 同事幾秒就給出答案——不會缺貨，每個數字都附來源。他放心，我也安心——兩邊都贏。'],
   q:'山苦瓜，下週會不會缺貨？',ans:'「不會。我幫你看過了。」',slogan:'隨問，隨答。',
   depts:['倉管','生管','採購','品管'],tables:['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'],
   s2:'一個問題，被切成<b style="color:#ff9a6a">四塊</b>。',
@@ -392,7 +392,7 @@ const LANG={
    "Night falls. A whole day's work. And what I still can't shake is — is this answer even right?",
    "And bitter gourd is just one of the hundreds of items I'm watching this week.",
    "But what if you had an AI teammate who truly understood supply chain? One question — and it checks all four departments, all six sheets, and reconciles ERP against the second system, all at once. In seconds, it has the whole answer.",
-   "The colleague comes back and asks again: bitter gourd — will we run out next week? This time, the AI teammate answers in seconds — no: 320 pcs on hand, 210 forecast, next batch on August 12th; the 18-piece gap is a pending-inspection batch. Every number comes with its source, so I can verify at a glance. He's relieved, I'm at ease — one question, and everybody wins."],
+   "The colleague asks again. This time, the AI teammate answers in seconds — no shortage, every number with its source. He's relieved, I'm at ease — everybody wins."],
   q:'Bitter gourd — will we run out next week?',ans:'“No. I’ve already checked for you.”',slogan:'Ask anytime. Answered instantly.',
   depts:['Warehouse','Planning','Purchasing','QC'],tables:['Stock','Forecast','Lead-time','PO','Receiving','QC log'],
   s2:'One question, <b style="color:#ff9a6a">split four ways</b>.',
@@ -410,7 +410,7 @@ const LANG={
    '日が暮れ、丸一日働いた。それでも引っかかるのは——この答え、本当に正しい？',
    'そしてゴーヤは、今週見るべき数百の品目のひとつにすぎない。',
    'もし、サプライチェーンを本当に理解したAIの同僚がいたら？ひとつの質問で、四つの部門と六枚の表を同時に確認し、ERPと新得利まで突き合わせる——数秒で、答えをすべて揃えてくれる。',
-   '同僚がまた聞きに来た。ゴーヤ、来週は欠品する？今度は、AIの同僚が数秒で答えを出す——欠品しません。在庫320個、予測需要210個、次回入荷は8月12日。差の18個は検収待ちのロット。どの数字にも出典がついていて、ひと目で確認できる。彼も安心、私も安心——ひとつの質問で、みんなが得をする。'],
+   '同僚がまた聞きに来た。今度は、AIの同僚が数秒で答えを出す——欠品しません、数字には出典つき。彼も安心、私も安心——みんなが得をする。'],
   q:'ゴーヤ、来週は欠品する？',ans:'「いいえ。確認しておきました。」',slogan:'聞けば、すぐ答える。',
   depts:['倉庫','生産','購買','品質'],tables:['在庫表','予測表','納期表','発注書','検収記録','品質検査'],
   s2:'ひとつの質問が、<b style="color:#ff9a6a">四つに分かれる</b>。',
@@ -565,10 +565,10 @@ function render(){
    if(xdlCol)xdlCol.classList.toggle('on',i===3&&segElapsed>=0.52*ed);
    if(diffEl)diffEl.classList.toggle('on',i===3&&segElapsed>=0.70*ed);}
   // 場景6：有憑據的答案卡→標語→CTA，依 segElapsed 推進（不受末幕 ls 上限限制，鋪滿整段並定格保留）
-  {const k=N.on?1:0.5,p=segElapsed; // 對齊第八段劇情：同事再問(0-7s)→AI 秒答(卡片亮)→標語；CTA 已移除
-   $('anscard').style.opacity=smooth((p-7.2*k)/0.8).toFixed(3);
-   $('evid').style.opacity=smooth((p-8*k)/0.9).toFixed(3);
-   $('slogan').style.opacity=smooth((p-15*k)/0.9).toFixed(3);}
+  {const k=N.on?1:0.5,p=segElapsed; // 對齊第八段劇情（短版旁白~11s）：同事再問→AI 秒答(卡片亮,對上「不會缺貨」特寫~7s)→標語；CTA 已移除
+   $('anscard').style.opacity=smooth((p-6.8*k)/0.8).toFixed(3);
+   $('evid').style.opacity=smooth((p-7.6*k)/0.9).toFixed(3);
+   $('slogan').style.opacity=smooth((p-11*k)/0.9).toFixed(3);}
 
   if(tlPhasesEl){const ch=tlPhasesEl.children;const af=N.on?clamp(segElapsed/estDur(i),0,1):clamp((t-B[i])/DUR[i],0,1);for(let j=0;j<ch.length;j++){ch[j].classList.toggle('active',j===i);ch[j].classList.toggle('done',j<i);ch[j].querySelector('.pb i').style.width=(j<i?100:(j===i?af*100:0))+'%';}
     if(bp2)bp2.textContent=(playing&&t<TOTAL)?'⏸ 暫停':'▶ 播放';}
