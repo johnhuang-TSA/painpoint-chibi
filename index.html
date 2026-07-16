@@ -366,7 +366,7 @@ const LANG={
  zh:{name:'中文',code:'zh-TW',
   narr:[
    '同事順口一問：山苦瓜，下週會不會缺貨？',
-   '這一句丟到供應鏈，就散成四塊：倉管的庫存、生管的原料、採購的到貨、品管的檢驗報告。我手上只有一塊，剩下的，得一個個去問。',
+   '一句話丟進供應鏈，散成四塊：庫存問倉管、原料問生管、到貨問採購、檢驗問品管——答案，得一站一站問。',
    '想自己查？光是攤開庫存表、預估表、交期表、採購單、驗收紀錄、品檢記錄——六張表一張一張比對，一個下午就沒了。',
    '更麻煩的是，同一個山苦瓜，ERP 顯示三百零二件，新得利顯示二百八十四件，差了十八件。到底該信哪一個？',
    '天黑了，忙了一整天，我最放不下的還是——這個答案，真的對嗎？',
@@ -384,7 +384,7 @@ const LANG={
  en:{name:'English',code:'en-US',
   narr:[
    "A colleague casually asks: bitter gourd — will we run out next week?",
-   "The question lands on supply chain — and the answer is a four-piece puzzle: Warehouse, how much stock is left? Planning, do we have enough raw material? Purchasing, when does the next batch arrive? QC, when's the inspection report ready? I only hold one of those pieces — the rest, I ask for, colleague by colleague.",
+   "One question splits into four: stock? ask Warehouse. Materials? Planning. Arrivals? Purchasing. Inspection? QC. The answer, I chase station by station.",
    "Sure, I could look it up myself — but just digging through the data means opening the stock sheet, the forecast, the lead-time sheet, purchase orders, receiving records, QC logs — six sheets, cross-checked one by one, a whole afternoon gone.",
    "Worse still — for the same bitter gourd, ERP shows 302 pcs but the second system shows 284. An 18-piece gap. Which one do I trust?",
    "Night falls. A whole day's work. And what I still can't shake is — is this answer even right?",
@@ -402,7 +402,7 @@ const LANG={
  ja:{name:'日本語',code:'ja-JP',
   narr:[
    '同僚が軽く一言。ゴーヤ、来週は欠品する？',
-   '問題はサプライチェーンに回ってくる。その答えは、四つのピースを揃えないと出ない。倉庫管理、在庫はあといくつ？生産管理、原料は足りる？購買、次のロットはいつ入る？品質管理、検査報告はいつ出る？私が持っているのは、そのうちのひとつだけ。残りは、同僚に一人ずつ聞いて回る。',
+   'ひとつの質問が、四つに割れる。在庫は倉庫に、原料は生産管理に、入荷は購買に、検査は品質管理に——答えは、一人ずつ聞いて回るしかない。',
    'もちろん自分で調べてもいい。でも資料をめくるだけでも、在庫表、予測表、納期表、発注書、検収記録、品質検査記録——六枚の表を広げて、一枚ずつ照合して、午後がまるごと消える。',
    '厄介なのは、同じゴーヤなのに、ERPは302個、新得利は284個——18個もずれていること。どちらを信じればいい？',
    '日が暮れ、丸一日働いた。それでも引っかかるのは——この答え、本当に正しい？',
@@ -493,7 +493,7 @@ function doSpeak(i){const txt=NARR[i];if(!txt)return;
     const chunk=parts[idx++];let spk=chunk;if(/^zh/i.test(L.code))spk=spk.replace(/AI/g,'A I');
     if(i===2)for(let k=0;k<LBL.length;k++){if(chunk.indexOf(LBL[k])>=0||(L.tables[k]&&chunk.toLowerCase().indexOf(L.tables[k].toLowerCase())>=0))lblShown[k]=1;}
     if(i===1)for(let k=0;k<DEPTS.length;k++){if(chunk.indexOf(DEPTS[k])>=0||(L.depts[k]&&chunk.toLowerCase().indexOf(L.depts[k].toLowerCase())>=0))qTarget=k;}
-    const u=new SpeechSynthesisUtterance(spk);if(N.voice)u.voice=N.voice;u.lang=L.code;u.rate=clamp((i<=3?0.96:1.0)*speed,0.5,3);u.pitch=1.05;u.volume=1;
+    const u=new SpeechSynthesisUtterance(spk);if(N.voice)u.voice=N.voice;u.lang=L.code;u.rate=clamp((i===1?1.08:(i<=3?0.96:1.0))*speed,0.5,3);u.pitch=1.05;u.volume=1; // 第二段語速略快，貼齊影片長度
     u.onend=u.onerror=()=>{if(N.cur===token)next();};
     N.guard=setTimeout(()=>{if(N.cur===token){N.active=false;duck();}},14000);
     try{speechSynthesis.speak(u);}catch(e){next();}};
