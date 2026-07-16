@@ -41,6 +41,13 @@
   @keyframes blink{50%{opacity:0;}}
   #clock{position:absolute;right:6%;top:11%;font-family:"Consolas",monospace;z-index:7;
     font-size:min(3vw,3.4vh);letter-spacing:.1em;color:#eef4ff;opacity:0;text-shadow:0 0 .6em rgba(0,0,20,.95);will-change:opacity;}
+  /* 角色標記（同事 / AI 同事）：小名牌＋朝下尾巴，指向下方角色 */
+  .charmark{position:absolute;z-index:7;display:inline-flex;align-items:center;gap:.3em;font-weight:800;font-size:min(1.7vw,2.1vh);letter-spacing:.04em;color:#0a1018;background:linear-gradient(180deg,#ffffff,#dbe8ff);padding:.26em .7em;border-radius:.6em;border:2px solid #fff;box-shadow:0 .4vh 1.4vh rgba(0,0,0,.5);white-space:nowrap;}
+  .charmark::after{content:"";position:absolute;left:50%;bottom:-0.48em;transform:translateX(-50%);border:0.48em solid transparent;border-top-color:#dbe8ff;border-bottom:0;}
+  .charmark.ai{background:linear-gradient(180deg,#dffff6,#79e6cf);border-color:#eafffb;color:#043a2f;}
+  .charmark.ai::after{border-top-color:#79e6cf;}
+  #mark1{top:15%;right:9%;} /* 場景1：同事在右 */
+  #mark7{top:7%;right:13%;} /* 場景7：AI 機器人在右 */
 
   /* 場景2：部門名條（唸到誰誰亮） */
   #deptStrip{position:absolute;left:0;right:0;top:6%;display:flex;justify-content:center;gap:min(1.4vw,1.8vh);z-index:6;}
@@ -152,7 +159,7 @@
 <div id="stage">
 
   <div class="scene" id="s1"><div class="vfallback"></div><video class="vid" data-v="1" loop muted playsinline preload="auto"></video>
-    <div class="overlay"><div class="lower big"><span class="cap" id="q1"></span></div></div></div>
+    <div class="overlay"><div class="charmark" id="mark1">👤 同事</div><div class="lower big"><span class="cap" id="q1"></span></div></div></div>
 
   <div class="scene" id="s2"><div class="vfallback"></div><video class="vid" data-v="2" loop muted playsinline preload="auto"></video>
     <div class="overlay"><div id="deptStrip"></div><div class="lower mid"><span class="cap" id="s2line">一個問題，被切成<b style="color:#ff9a6a">四塊</b>。</span></div></div></div>
@@ -164,7 +171,7 @@
     <div class="overlay">
       <div id="numpanel">
         <div class="numcol erp"><div class="nk">ERP</div><div class="nv">302</div></div>
-        <div id="numdiff">差 18 箱<br><span style="font-size:.72em;font-weight:600">原因：待驗收批次</span></div>
+        <div id="numdiff">差 18 pcs<br><span style="font-size:.72em;font-weight:600">原因：待驗收批次</span></div>
         <div class="numcol xdl"><div class="nk">新得利</div><div class="nv">284</div></div>
       </div>
       <div class="lower mid"><span class="cap" id="sAline">ERP 一個數，新得利另一個數。到底，<b style="color:#ff9a6a">信哪一個</b>？</span></div>
@@ -178,7 +185,7 @@
     <div class="overlay"><div class="lower mid"><span class="cap" id="sBline">而這，只是這週的<b style="color:#ff9a6a">其中一個</b>品項。</span></div></div></div>
 
   <div class="scene" id="s5"><div class="vfallback"></div><video class="vid" data-v="7" loop muted playsinline preload="auto"></video>
-    <div class="overlay"><div class="center"><div class="big"><span class="cap" id="s5line"><span style="color:#cfe0f5">如果……</span> 有一個<span style="color:#ffcf8a">「懂供應鏈的 AI 同事」</span>？</span></div></div></div></div>
+    <div class="overlay"><div class="charmark ai" id="mark7">🤖 AI 同事</div><div class="center"><div class="big"><span class="cap" id="s5line"><span style="color:#cfe0f5">如果……</span> 有一個<span style="color:#ffcf8a">「懂供應鏈的 AI 同事」</span>？</span></div></div></div></div>
 
   <div class="scene" id="s6"><div class="vfallback"></div><video class="vid" data-v="8" loop muted playsinline preload="auto"></video>
     <div class="overlay"><div class="center">
@@ -186,10 +193,10 @@
         <div id="ask6"></div>
         <div id="ansHead"></div>
         <div id="evid">
-          <div class="erow"><span class="ek" id="ek0">可用庫存</span><span class="ev" id="ev0">320 箱</span></div>
-          <div class="erow"><span class="ek" id="ek1">預估需求</span><span class="ev" id="ev1">210 箱</span></div>
+          <div class="erow"><span class="ek" id="ek0">可用庫存</span><span class="ev" id="ev0">320 pcs</span></div>
+          <div class="erow"><span class="ek" id="ek1">預估需求</span><span class="ev" id="ev1">210 pcs</span></div>
           <div class="erow"><span class="ek" id="ek2">下一批到貨</span><span class="ev" id="ev2">8/12</span></div>
-          <div class="erow"><span class="ek" id="ek3">兩套系統差異</span><span class="ev" id="ev3">18 箱・待驗收批次</span></div>
+          <div class="erow"><span class="ek" id="ek3">兩套系統差異</span><span class="ev" id="ev3">18 pcs・待驗收批次</span></div>
           <div class="esrc" id="esrc">資料來源：ERP＋新得利｜更新 09:14｜數據為示意</div>
         </div>
         <div id="slogan"></div>
@@ -263,7 +270,7 @@ const VIDS=[...document.querySelectorAll('.vid')]; // index 0..7 對應 v1..v8�
 VIDS.forEach((v,i)=>{v.addEventListener('error',()=>{v.dataset.bad='1';v.style.display='none';});});
 function ensureVid(i){const v=VIDS[i];if(v&&!v.getAttribute('src')){v.setAttribute('src','videos/v'+v.getAttribute('data-v')+'.mp4');}} // 分段載入：用到才設 src，開場只載前兩段
 ensureVid(0);ensureVid(1);
-function sceneFillRate(i){const vd=(VIDS[i]&&VIDS[i].duration)?VIDS[i].duration:10;const sd=N.on?estDur(i):DUR[i];return clamp(vd/sd,0.45,1);} // 用旁白估長算填幕倍率，放慢影片填滿整幕、盡量不循環
+function sceneFillRate(i){const vd=(VIDS[i]&&VIDS[i].duration)?VIDS[i].duration:10;const sd=N.on?estDur(i):DUR[i];return clamp(vd/sd,0.34,1);} // 用旁白估長算填幕倍率；下限放到 0.34，長旁白也能鋪滿不循環
 function playVid(i){ensureVid(i);ensureVid(i+1);VIDS.forEach((v,k)=>{if(k===i){if(!v.dataset.bad){try{v.muted=true;v.currentTime=0;v.playbackRate=sceneFillRate(i)*speed;if(playing){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else{v.pause();}}catch(e){}}}else{try{v.pause();}catch(e){}}});}
 function pauseAllVids(){VIDS.forEach(v=>{try{v.pause();}catch(e){}});}
 function resumeVid(i){const v=VIDS[i];if(v&&!v.dataset.bad){const p=v.play();if(p&&p.catch)p.catch(()=>{});}}
@@ -316,30 +323,16 @@ function padChord(fr){if(!M.ctx)return;const now=M.ctx.currentTime;M.padOsc.forE
 function piano(t0,f,v,dur){const c=M.ctx;dur=dur||2.6;const g=c.createGain();g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+0.02);g.gain.exponentialRampToValueAtTime(0.0008,t0+dur);const o=c.createOscillator();o.type='sine';o.frequency.value=f;const o2=c.createOscillator();o2.type='sine';o2.frequency.value=f*2.001;const g2=c.createGain();g2.gain.value=0.16;o.connect(g);o2.connect(g2);g2.connect(g);g.connect(M.bus);o.start(t0);o2.start(t0);o.stop(t0+dur+0.1);o2.stop(t0+dur+0.1);}
 function pianoChord(t0,fr,v){fr.forEach((f,k)=>piano(t0+k*0.09,f,v*0.7,3.4));}
 function subPulse(t0,v){const c=M.ctx;const o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(76,t0);o.frequency.exponentialRampToValueAtTime(44,t0+0.18);const g=c.createGain();g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(v,t0+0.02);g.gain.exponentialRampToValueAtTime(0.001,t0+0.5);o.connect(g);g.connect(M.master);o.start(t0);o.stop(t0+0.55);}
-const CHORDS=[[146.83,174.61,220,293.66],[146.83,174.61,220,261.63],[146.83,174.61,220,311.13],[146.83,174.61,207.65,311.13],[146.83,220,293.66,440],[110,146.83,174.61,220],[116.54,146.83,174.61,233.08],[174.61,220,261.63,349.23]];
-const PADLV=[0.07,0.08,0.12,0.115,0.045,0.1,0.095,0.1];
-const PADCUT=[1100,1300,1600,1400,800,1150,2600,3200];
-function musicScene(i){if(!M.ctx)return;const c=M.ctx,now=c.currentTime,st=ST();padChord(CHORDS[i]||CHORDS[0]);
-  M.padGain.gain.cancelScheduledValues(now);M.padGain.gain.setValueAtTime(M.padGain.gain.value,now);
-  if(i!==2)M.padGain.gain.linearRampToValueAtTime(PADLV[i]*st.padMul,now+1.3);
-  M.padFilt.frequency.setTargetAtTime(PADCUT[i]*st.cutMul,now,0.9);
-  if(i===6)pianoChord(now+0.2,[233.08,293.66,349.23,466.16],0.085*st.pianoMul);
-  if(i===7)pianoChord(now+0.2,[349.23,440,523.25],0.08*st.pianoMul);}
-function musicTick(){if(!M.ctx)return;const c=M.ctx;if(!playing)return;if(c.state==='suspended'){c.resume();return;}const i=sceneAt(t),ls=t-B[i],st=ST();
-  const P=(t0,f,v,d)=>piano(t0,f,v*st.pianoMul,d);const SP=(t0,v)=>{if(st.pulseMul>0.01)subPulse(t0,v*st.pulseMul);};
-  if(i===2&&M.padGain){const rise=Math.min(1,ls/9);const trem=1+0.14*Math.sin(c.currentTime*5.5);M.padGain.gain.value=(0.05+0.1*rise)*trem*st.padMul;M.padFilt.frequency.value=(850+rise*1500)*st.cutMul;}
-  const ARP=[392.0,440,523.25,587.33,659.25];
-  while(M.sched<c.currentTime+0.2){const tt=M.sched;
-    if(i===0){if(M.beat%16===0)P(tt,392.0,0.06,3.2);if(M.beat%16===9)P(tt,329.63,0.045,3);}
-    else if(i===1){if(M.beat%8===0)SP(tt,0.15);if(M.beat%16===6)P(tt,293.66,0.055,2.8);}
-    else if(i===2){const d=2+Math.floor(ls/3);if(M.beat%Math.max(2,7-d)===0)SP(tt,0.14);if(M.beat%14===0)P(tt,311.13,0.05,2.2);}
-    else if(i===3){if(M.beat%4===0)P(tt,(M.beat/4)%2?293.66:311.13,0.06,1.6);if(M.beat%8===0)SP(tt,0.13);}
-    else if(i===4){if(M.beat%26===0)P(tt,349.23,0.06,3.8);}
-    else if(i===5){const d=Math.floor(ls/2);if(M.beat%Math.max(3,8-d)===0)SP(tt,0.2);if(M.beat%16===0)P(tt,174.61,0.06,2.4);}
-    else if(i===6){if(M.beat%6===0)P(tt,[233.08,293.66,349.23,466.16][(M.beat/6)%4|0],0.075,2.8);}
-    else if(i===7){if(M.beat%8===0)P(tt,[349.23,440,523.25][(M.beat/8)%3|0],0.07,3);}
-    if(st.arp&&i!==4&&M.beat%2===0)piano(tt,ARP[(M.beat/2)%ARP.length|0]*(i>=6?1.5:1),0.02,0.5);
-    if(st.bell&&M.beat%24===0)piano(tt,[784,880,1047][(M.beat/24)%3|0],0.028,4.2);
+// ── 卡農（Pachelbel Canon in D）：8 和弦地基循環（D–A–Bm–F#m–G–D–G–A）＋招牌旋律＋流動琶音，全片循環 ──
+const CANON_PAD=[[146.83,220.00,293.66,369.99],[164.81,220.00,277.18,329.63],[123.47,185.00,246.94,293.66],[138.59,185.00,277.18,329.63],[146.83,196.00,293.66,392.00],[146.83,220.00,293.66,369.99],[146.83,196.00,293.66,392.00],[164.81,220.00,277.18,329.63]];
+const CANON_BASS=[73.42,110.00,123.47,92.50,98.00,73.42,98.00,110.00];
+const CANON_MEL=[369.99,329.63,293.66,277.18,246.94,220.00,246.94,277.18];
+const CANON_ARP=[[293.66,369.99,440.00,587.33],[329.63,440.00,554.37,659.25],[293.66,369.99,493.88,587.33],[277.18,369.99,554.37,659.25],[293.66,392.00,493.88,587.33],[293.66,369.99,440.00,587.33],[293.66,392.00,493.88,587.33],[329.63,440.00,554.37,659.25]];
+function musicScene(i){if(!M.ctx)return;const now=M.ctx.currentTime;M.padFilt.frequency.setTargetAtTime(1500,now,0.9);M.padGain.gain.setTargetAtTime(0.085,now,1.2);} // 卡農：pad 穩定，和弦由 musicTick 依拍推進（不隨場景跳）
+function musicTick(){if(!M.ctx)return;const c=M.ctx;if(!playing)return;if(c.state==='suspended'){c.resume();return;}
+  while(M.sched<c.currentTime+0.2){const tt=M.sched,step=M.beat,ci=Math.floor(step/8)%8;
+    if(step%8===0){padChord(CANON_PAD[ci]);piano(tt,CANON_BASS[ci],0.05,2.3);piano(tt,CANON_MEL[ci],0.062,2.5);} // 每 2 秒換和弦：低音＋招牌下行旋律
+    if(step%2===0){const a=CANON_ARP[ci];piano(tt,a[(step/2)%4],0.03,0.9);} // 流動琶音
     M.sched+=60/120/2;M.beat++;}}
 
 // ===== 旁白（多語言 + Dori 真人音檔）=====
@@ -349,11 +342,11 @@ const LANG={
    '同事順口一問：山苦瓜，下週會不會缺貨？',
    '這一句丟到供應鏈，就散成四塊：倉管的庫存、生管的原料、採購的到貨、品管的檢驗報告。我手上只有一塊，剩下的，得一個個去問。',
    '想自己查？光是攤開庫存表、預估表、交期表、採購單、驗收紀錄、品檢記錄——六張表一張一張比對，一個下午就沒了。',
-   '更麻煩的是，同一個山苦瓜，ERP 顯示三百零二箱，新得利顯示二百八十四箱，差了十八箱。到底該信哪一個？',
+   '更麻煩的是，同一個山苦瓜，ERP 顯示三百零二件，新得利顯示二百八十四件，差了十八件。到底該信哪一個？',
    '天黑了，忙了一整天，我最放不下的還是——這個答案，真的對嗎？',
    '而這，只是這週幾百個品項裡的其中一個。',
    '那如果，有一位真正懂供應鏈的 AI 同事呢？同一句問題，它同時查完四個部門、六張表，還比對了 ERP 跟新得利——幾秒鐘，就把答案湊齊。',
-   '山苦瓜，下週不會缺貨：可用庫存三百二十箱、預估需求二百一十箱、下一批八月十二號到；兩套系統差的十八箱，是待驗收批次。原本要半天、翻六張表，現在問一句、幾十秒，答案還附上來源。'],
+   '山苦瓜，下週不會缺貨：可用庫存三百二十件、預估需求二百一十件、下一批八月十二號到；兩套系統差的十八件，是待驗收批次。原本要半天、翻六張表，現在問一句、幾十秒，答案還附上來源。'],
   q:'山苦瓜，下週會不會缺貨？',ans:'「不會。我幫你看過了。」',slogan:'隨問，隨答。',
   depts:['倉管','生管','採購','品管'],tables:['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'],
   s2:'一個問題，被切成<b style="color:#ff9a6a">四塊</b>。',
@@ -367,11 +360,11 @@ const LANG={
    "A colleague casually asks: bitter gourd — will we run out next week?",
    "The question lands on supply chain — and the answer is a four-piece puzzle: Warehouse, how much stock is left? Planning, do we have enough raw material? Purchasing, when does the next batch arrive? QC, when's the inspection report ready? I only hold one of those pieces — the rest, I ask for, colleague by colleague.",
    "Sure, I could look it up myself — but just digging through the data means opening the stock sheet, the forecast, the lead-time sheet, purchase orders, receiving records, QC logs — six sheets, cross-checked one by one, a whole afternoon gone.",
-   "Worse still — for the same bitter gourd, ERP shows 302 boxes but the second system shows 284. An 18-box gap. Which one do I trust?",
+   "Worse still — for the same bitter gourd, ERP shows 302 pcs but the second system shows 284. An 18-piece gap. Which one do I trust?",
    "Night falls. A whole day's work. And what I still can't shake is — is this answer even right?",
    "And bitter gourd is just one of the hundreds of items I'm watching this week.",
    "But what if you had an AI teammate who truly understood supply chain? One question — and it checks all four departments, all six sheets, and reconciles ERP against the second system, all at once. In seconds, it has the whole answer.",
-   "Bitter gourd won't run out next week: 320 boxes on hand, 210 forecast demand, next batch arrives August 12th; the 18-box gap between the two systems is a pending-inspection batch. What used to take half a day and six sheets now takes one question and seconds — every answer with its source."],
+   "Bitter gourd won't run out next week: 320 pcs on hand, 210 forecast demand, next batch arrives August 12th; the 18-piece gap between the two systems is a pending-inspection batch. What used to take half a day and six sheets now takes one question and seconds — every answer with its source."],
   q:'Bitter gourd — will we run out next week?',ans:'“No. I’ve already checked for you.”',slogan:'Ask anytime. Answered instantly.',
   depts:['Warehouse','Planning','Purchasing','QC'],tables:['Stock','Forecast','Lead-time','PO','Receiving','QC log'],
   s2:'One question, <b style="color:#ff9a6a">split four ways</b>.',
@@ -385,11 +378,11 @@ const LANG={
    '同僚が軽く一言。ゴーヤ、来週は欠品する？',
    '問題はサプライチェーンに回ってくる。その答えは、四つのピースを揃えないと出ない。倉庫管理、在庫はあといくつ？生産管理、原料は足りる？購買、次のロットはいつ入る？品質管理、検査報告はいつ出る？私が持っているのは、そのうちのひとつだけ。残りは、同僚に一人ずつ聞いて回る。',
    'もちろん自分で調べてもいい。でも資料をめくるだけでも、在庫表、予測表、納期表、発注書、検収記録、品質検査記録——六枚の表を広げて、一枚ずつ照合して、午後がまるごと消える。',
-   '厄介なのは、同じゴーヤなのに、ERPは302箱、新得利は284箱——18箱もずれていること。どちらを信じればいい？',
+   '厄介なのは、同じゴーヤなのに、ERPは302個、新得利は284個——18個もずれていること。どちらを信じればいい？',
    '日が暮れ、丸一日働いた。それでも引っかかるのは——この答え、本当に正しい？',
    'そしてゴーヤは、今週見るべき数百の品目のひとつにすぎない。',
    'もし、サプライチェーンを本当に理解したAIの同僚がいたら？ひとつの質問で、四つの部門と六枚の表を同時に確認し、ERPと新得利まで突き合わせる——数秒で、答えをすべて揃えてくれる。',
-   'ゴーヤは来週欠品しません。在庫320箱、予測需要210箱、次回入荷は8月12日。二つのシステムの差18箱は検収待ちのロットです。半日かけて六枚の表をめくっていた作業が、いまはひと言、数十秒——しかも答えには必ず出典がつく。'],
+   'ゴーヤは来週欠品しません。在庫320個、予測需要210個、次回入荷は8月12日。二つのシステムの差18個は検収待ちのロットです。半日かけて六枚の表をめくっていた作業が、いまはひと言、数十秒——しかも答えには必ず出典がつく。'],
   q:'ゴーヤ、来週は欠品する？',ans:'「いいえ。確認しておきました。」',slogan:'聞けば、すぐ答える。',
   depts:['倉庫','生産','購買','品質'],tables:['在庫表','予測表','納期表','発注書','検収記録','品質検査'],
   s2:'ひとつの質問が、<b style="color:#ff9a6a">四つに分かれる</b>。',
@@ -402,9 +395,9 @@ const LANG={
 LANG.dori=Object.assign({},LANG.zh,{name:'Dori 真人配音'});
 // 場景6「有憑據的答案卡＋CTA」與新標語 的多語文字
 const EV={
- zh:{head:'不會，下週不會缺貨。',rows:[['可用庫存','320 箱'],['預估需求','210 箱'],['下一批到貨','8/12'],['兩套系統差異','18 箱・待驗收']],src:'資料來源：ERP＋新得利｜更新 09:14｜數據為示意',slogan:'答案快，更要答得有據。',cta:'▸ 選 3 個高頻問題，做兩週 PoC'},
+ zh:{head:'不會，下週不會缺貨。',rows:[['可用庫存','320 pcs'],['預估需求','210 pcs'],['下一批到貨','8/12'],['兩套系統差異','18 pcs・待驗收']],src:'資料來源：ERP＋新得利｜更新 09:14｜數據為示意',slogan:'答案快，更要答得有據。',cta:'▸ 選 3 個高頻問題，做兩週 PoC'},
  en:{head:"No — you won't run out next week.",rows:[['On-hand','320'],['Forecast','210'],['Next arrival','Aug 12'],['System gap','18 · pending QC']],src:'Source: ERP + 2nd system · updated 09:14 · illustrative',slogan:'Fast answers — with the receipts.',cta:'▸ Pick 3 top questions — 2-week PoC'},
- ja:{head:'いいえ、来週は欠品しません。',rows:[['在庫','320 箱'],['予測需要','210 箱'],['次回入荷','8/12'],['システム差','18 箱・検収待ち']],src:'出典：ERP＋新得利｜更新 09:14｜数値は例示',slogan:'速く、そして根拠のある答えを。',cta:'▸ 高頻度の3問で2週間PoC'},
+ ja:{head:'いいえ、来週は欠品しません。',rows:[['在庫','320 個'],['予測需要','210 個'],['次回入荷','8/12'],['システム差','18 個・検収待ち']],src:'出典：ERP＋新得利｜更新 09:14｜数値は例示',slogan:'速く、そして根拠のある答えを。',cta:'▸ 高頻度の3問で2週間PoC'},
  dori:null
 };
 function applyEvid(code){const e=EV[code]||EV.zh; // dori→null→用 zh
@@ -440,11 +433,12 @@ function allVoices(){return N.sup?speechSynthesis.getVoices():[];}
 function pickVoice(){if(!N.sup)return;const all=allVoices();const rx=new RegExp('^'+(lang==='dori'?'zh':lang),'i');const full=L.code.toLowerCase().replace('_','-');
   const vs=all.filter(v=>rx.test(v.lang));
   const exact=vs.filter(v=>v.lang.toLowerCase().replace('_','-')===full);const pool=exact.length?exact:vs;
-  N.voice=pool.find(v=>/online|natural|neural|曉|雲/i.test(v.name))||pool.find(v=>/google/i.test(v.name))||pool.find(v=>!/hanhan/i.test(v.name))||pool[0]||vs[0]||null;}
+  N.voice=pool.find(v=>/natural|neural|online|hsiaochen|hsiaoyu|xiaoxiao|xiaoyi|yunxi|yunjian|yunyang|曉|雲/i.test(v.name))||pool.find(v=>/google/i.test(v.name))||pool.find(v=>!/hanhan|zhiwei|haohao/i.test(v.name))||pool[0]||vs[0]||null;} // 優先神經網路語音（Edge 的 HsiaoChen/Xiaoxiao 等最自然），避開最生硬的 HanHan
 function applyLang(code){if(!LANG[code])return;lang=code;L=LANG[code];NARR=L.narr;
   const set=(id,html)=>{const el=$(id);if(el)el.innerHTML=html;};
   set('s2line',L.s2);set('s3line',L.s3);set('sAline',L.sA);set('s4a',L.s4a);set('s4b',L.s4b);set('sBline',L.sB);set('s5line',L.s5);
   applyEvid(code); // 場景6 證據卡＋CTA＋新標語
+  {const mk=({zh:['👤 同事','🤖 AI 同事'],en:['👤 Colleague','🤖 AI'],ja:['👤 同僚','🤖 AI']})[code]||['👤 同事','🤖 AI 同事'];const m1=$('mark1'),m7=$('mark7');if(m1)m1.textContent=mk[0];if(m7)m7.textContent=mk[1];} // 角色標記多語
   if(scriptShown())buildTranscript(); // 逐字稿開著→換語言重建
   deptEls.forEach((el,k)=>{if(L.depts[k])el.textContent=L.depts[k];});
   lblEls.forEach((el,k)=>{if(L.tables[k])el.textContent=L.tables[k];});
@@ -473,7 +467,7 @@ function doSpeak(i){const txt=NARR[i];if(!txt)return;
     const chunk=parts[idx++];let spk=chunk;if(/^zh/i.test(L.code))spk=spk.replace(/AI/g,'A I');
     if(i===2)for(let k=0;k<LBL.length;k++){if(chunk.indexOf(LBL[k])>=0||(L.tables[k]&&chunk.toLowerCase().indexOf(L.tables[k].toLowerCase())>=0))lblShown[k]=1;}
     if(i===1)for(let k=0;k<DEPTS.length;k++){if(chunk.indexOf(DEPTS[k])>=0||(L.depts[k]&&chunk.toLowerCase().indexOf(L.depts[k].toLowerCase())>=0))qTarget=k;}
-    const u=new SpeechSynthesisUtterance(spk);if(N.voice)u.voice=N.voice;u.lang=L.code;u.rate=clamp((i<=3?0.97:1.0)*speed,0.5,3);u.pitch=1.0;u.volume=1;
+    const u=new SpeechSynthesisUtterance(spk);if(N.voice)u.voice=N.voice;u.lang=L.code;u.rate=clamp((i<=3?0.96:1.0)*speed,0.5,3);u.pitch=1.05;u.volume=1;
     u.onend=u.onerror=()=>{if(N.cur===token)next();};
     N.guard=setTimeout(()=>{if(N.cur===token){N.active=false;duck();}},14000);
     try{speechSynthesis.speak(u);}catch(e){next();}};
@@ -493,6 +487,7 @@ function onEnter(i){
   if(i===4){$('clock').textContent='21:47';}
   if(i===2)lblShown.fill(0);
   if(i===1)qTarget=-1;
+  {const v=VIDS[i];vidPassed=!(v&&!v.dataset.bad);} // 進新幕：重置影片播完旗標（沒影片就當已完成）
   playVid(i);musicScene(i);if(playing)speak(i); // 暫停時不自動起旁白/播放（修暫停被破壞的 bug）
 }
 function sceneOpacity(i){const s=B[i],e=B[i+1];
@@ -502,6 +497,7 @@ function sceneOpacity(i){const s=B[i],e=B[i+1];
 function render(){
   const i=sceneAt(t);
   if(i!==curScene){curScene=i;if(started)onEnter(i);}
+  {const cv=VIDS[i];if(!vidPassed&&cv&&!cv.dataset.bad&&cv.duration>0.5&&cv.currentTime>=cv.duration-0.5)vidPassed=true;} // 影片播到接近尾端＝完成一輪
   if(scriptShown())highlightTranscript(i);
   for(let k=0;k<SCENES.length;k++)SCENES[k].style.opacity=sceneOpacity(k).toFixed(3);
   const ls=t-B[i];
@@ -538,7 +534,8 @@ function render(){
 }
 
 let segElapsed=0,segActive=-1;
-function estDur(j){if(!N.on)return DUR[j];if(VO[j]&&VO[j].duration)return Math.max(DUR[j],VO[j].duration);const n=(NARR[j]||'').length;return Math.max(DUR[j],n*0.23+1);}
+let vidPassed=false; // 本幕影片是否已至少完整播過一輪（用來決定換場時機）
+function estDur(j){if(!N.on)return DUR[j];if(VO[j]&&VO[j].duration)return Math.max(DUR[j],VO[j].duration);const n=(NARR[j]||'').length;return Math.max(DUR[j],n*0.3+1.5);} // 估長放寬（貼近實際中文 TTS 含停頓），讓影片鋪滿旁白
 function loop(now){
   if(!lastTs)lastTs=now;let dt=(now-lastTs)/1000;lastTs=now;if(dt>0.1)dt=0.1;
   const rawDt=dt;dt*=speed;
@@ -546,8 +543,11 @@ function loop(now){
   if(started&&playing){
     const ci=sceneAt(t);let nt=t+dt;
     const hp=B[ci+1]-FADE-0.05;
-    if(N.on&&N.active&&ci<DUR.length-1&&nt>=hp)nt=Math.min(nt,hp);
-    if(N.on&&N.active&&nt>=TOTAL)nt=Math.min(nt,TOTAL-0.01);
+    const holdNarr=(N.on&&N.active); // 旁白還沒唸完
+    const holdVid=(!vidPassed&&segElapsed<24); // 影片還沒播完一輪（含綠箱等關鍵畫面），最多等 24s 防卡死
+    const hold=holdNarr||holdVid;
+    if(hold&&ci<DUR.length-1&&nt>=hp)nt=Math.min(nt,hp);
+    if(hold&&nt>=TOTAL)nt=Math.min(nt,TOTAL-0.01);
     t=nt;if(t>=TOTAL){t=TOTAL;playing=false;bgmStop();try{if(M.padGain)M.padGain.gain.setTargetAtTime(0,M.ctx.currentTime,0.7);if(M.master&&!M.muted)M.master.gain.setTargetAtTime(M.vol*0.12,M.ctx.currentTime,1.0);}catch(e){}} // 片尾音樂淡出，不留無限嗡鳴
     const cs=sceneAt(t);if(cs!==segActive){segActive=cs;segElapsed=0;}segElapsed+=rawDt;
   }
