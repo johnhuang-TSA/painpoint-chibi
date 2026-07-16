@@ -68,10 +68,12 @@
     border-radius:50%;background:rgba(250,247,238,.92);border:.4vh solid #6b5b3e;box-shadow:0 .6vh 2vh rgba(0,0,0,.5);pointer-events:none;}
   #fastclock.focus{right:50%;top:28%;transform:translate(50%,0) scale(1.9);} /* 定格後：時鐘滑到畫面中央放大——真正的「聚焦時間」 */
   #fastclock::after{content:"";position:absolute;left:50%;top:50%;width:9%;height:9%;background:#333;border-radius:50%;transform:translate(-50%,-50%);}
-  /* 指針由 JS 驅動：依旁白節奏停在三個定點 9:30→13:30→18:30（一整天），定點間 0.9s 順時針快掃 */
-  .fc-m,.fc-h{position:absolute;left:48.5%;bottom:50%;transform-origin:bottom center;background:#333;border-radius:1vh;}
-  .fc-m{width:3%;height:42%;transform:rotate(180deg);}
-  .fc-h{width:5%;height:28%;background:#555;transform:rotate(285deg);}
+  /* 指針由 JS 驅動：三定點 9:30→13:30→18:30（一整天）；分針固定指:30，時針順時針平滑走到下一格（不轉圈） */
+  .fc-m,.fc-h{position:absolute;left:48.5%;bottom:50%;transform-origin:bottom center;background:#333;border-radius:1vh;z-index:2;}
+  .fc-m{width:3%;height:40%;transform:rotate(180deg);}
+  .fc-h{width:5%;height:26%;background:#555;transform:rotate(285deg);}
+  #fastclock::after{z-index:3;}
+  .fcn{position:absolute;transform:translate(-50%,-50%);z-index:1;font-weight:700;color:#4a3b22;font-size:min(1.35vw,1.7vh);font-family:Georgia,"Times New Roman",serif;line-height:1;} /* 鐘面數字 1~12 */
 
   /* 場景3：表名紙卡（唸到才浮現） */
   #tableWrap{position:absolute;left:6%;right:6%;bottom:17%;z-index:6;display:flex;flex-wrap:wrap;justify-content:center;gap:.7vh 1vh;} /* 改成底部一列小卡，不再散佈中央擋角色 */
@@ -312,6 +314,8 @@ const CHIP_T=[
 const BULB_T=[[2.5,3.45],[5.45,6.35],[7.85,8.72],[9.2,9.95]]; // 每站問完，哲人頭上亮 💡
 const erpCol=document.querySelector('#numpanel .erp'),xdlCol=document.querySelector('#numpanel .xdl'),diffEl=$('numdiff');
 const fcM=document.querySelector('#fastclock .fc-m'),fcH=document.querySelector('#fastclock .fc-h');
+(function(){const fc=$('fastclock');if(!fc)return;for(let n=1;n<=12;n++){const a=n*30*Math.PI/180,d=document.createElement('div');d.className='fcn';d.textContent=n;
+  d.style.left=(50+Math.sin(a)*38).toFixed(1)+'%';d.style.top=(50-Math.cos(a)*38).toFixed(1)+'%';fc.appendChild(d);}})(); // 鐘面數字 1~12，讓觀眾直接讀得出時間
 
 // ---------- 場景3：表名紙卡 ----------
 const LBL=['庫存表','預估表','交期表','採購單','驗收紀錄','品檢記錄'];
@@ -574,12 +578,12 @@ function render(){
    $('s3line').parentElement.style.opacity=(N.on?(lblShown.every(Boolean)?1:0):smooth((ls-5.0)/1.0)).toFixed(3);
    {const fc=$('fastclock'),T0=2.0,on=(i===2)&&segElapsed>=T0;
     fc.style.opacity=on?smooth((segElapsed-T0)/0.8).toFixed(3):0;
-    if(on&&fcM&&fcH){const ed=estDur(2),p=segElapsed;
-      // 一整天三定點：9:30(開工)→13:30(過午,+4h)→18:30(下班,+5h)；角度累加確保順時針掃
-      const ST=[[T0,285,180],[0.45*ed,405,1620],[0.72*ed,555,3420]];
-      let hd=ST[0][1],md=ST[0][2];
-      for(let k=1;k<ST.length;k++){const e=smooth((p-ST[k][0])/0.9);hd+=(ST[k][1]-ST[k-1][1])*e;md+=(ST[k][2]-ST[k-1][2])*e;}
-      fcH.style.transform='rotate('+(hd%360).toFixed(1)+'deg)';fcM.style.transform='rotate('+(md%360).toFixed(1)+'deg)';}
+    if(on&&fcH){const ed=estDur(2),p=segElapsed;
+      // 一整天三定點：9:30(開工)→13:30(過午)→18:30(下班)。三點分針都指:30(固定)，時針順時針平滑走到下一格，不轉圈
+      const ST=[[T0,285],[0.45*ed,405],[0.72*ed,555]];
+      let hd=ST[0][1];
+      for(let k=1;k<ST.length;k++){hd+=(ST[k][1]-ST[k-1][1])*smooth((p-ST[k][0])/1.2);}
+      fcH.style.transform='rotate('+(hd%360).toFixed(1)+'deg)';}
     const v3=VIDS[2];fc.classList.toggle('focus',i===2&&!!v3&&v3.ended);}} // 影片定格→時鐘滑到中央放大（聚焦時間）
   // 場景A：依旁白節奏依序亮：ERP 302(左上放大)→新得利 284(右上)→中間深色「差18」
   {$('sAline').parentElement.style.opacity=smooth((ls-1.4)/1.0).toFixed(3);
